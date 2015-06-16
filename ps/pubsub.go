@@ -1,7 +1,7 @@
 package gmq
 
-type Publisher struct {
-}
-
-type Subsciber struct {
+type PubSub struct {
+	Prio  int
+	Name  string
+	Queue QManager
 }
