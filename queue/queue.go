@@ -14,34 +14,30 @@ const (
 )
 
 type QManager interface {
-	Push()
+	Push([]byte)
 	Pop() []byte
 	sync()
 }
 
 type Queue struct {
-	lock   sync.RWMutex
-	QName  string
-	QTopic []string
-	QObj   map[int][]byte
+	lock  sync.RWMutex
+	QName string
+	QObj  map[int][]byte
 }
 
 type PrioQueue struct {
-	lock   sync.RWMutex
-	QName  string
-	QTopic []string
-	QObj   map[int]map[int][]byte
+	lock  sync.RWMutex
+	QName string
+	QObj  map[int]map[int][]byte
 }
 
-func (q *Queue) Push(args ...[]byte) {
+func (q *Queue) Push(o []byte) {
 	last := len(q.QObj)
 	if last == 0 {
 		q.QObj = make(map[int][]byte, DEFAULT_QUEUE_CAP)
 	}
 	q.lock.Lock()
-	for o := range args {
-		q.QObj[last+o] = args[o]
-	}
+	q.QObj[last] = o
 	q.lock.Unlock()
 }
 
@@ -65,16 +61,14 @@ func (q *Queue) sync() {
 	q.lock.Unlock()
 }
 
-func (q *PrioQueue) Push(prio int, args ...[]byte) {
+func (q *PrioQueue) Push(prio int, o []byte) {
 	last := len(q.QObj[prio])
 	if last == 0 {
 		tQobj := make(map[int][]byte, DEFAULT_QUEUE_CAP)
 		q.QObj[prio] = tQobj
 	}
 	q.lock.Lock()
-	for o := range args {
-		q.QObj[prio][last+o] = args[o]
-	}
+	q.QObj[prio][last] = o
 	q.lock.Unlock()
 }
 
