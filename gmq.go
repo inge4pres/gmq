@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"flag"
-	"fmt"
+	_ "fmt"
 	"os"
 )
 
@@ -15,11 +15,13 @@ func main() {
 	flag.Parse()
 
 	if err := parseConfigFile(configfile); err != nil {
-		return errors.New(fmt.Printf("Unable to parse configuration file %s", configfile))
+		panic(errors.New("Unable to parse configuration file %s"))
 	}
 
 }
 
-func parseConfigFile() error {
-
+func parseConfigFile(f string) error {
+	//TODO
+	_, err := os.Open(f)
+	return err
 }
