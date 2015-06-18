@@ -23,12 +23,12 @@ func main() {
 		Name: "queue_test_2",
 		Path: "./test/fs/",
 	}
-	for i := 0; i < 10; i++ {
-		err := qu.Push(message)
-		if err != nil {
-			fmt.Printf("Error: %T %s", err, err)
-		}
-	}
+	//	for i := 0; i < 10; i++ {
+	//		err := qu.Push(message)
+	//		if err != nil {
+	//			fmt.Printf("Error: %T %s", err, err)
+	//		}
+	//	}
 
 	//SECOND
 	ret := qu.Pop()

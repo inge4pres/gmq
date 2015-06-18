@@ -5,12 +5,13 @@ import (
 )
 
 const (
-	DEFAULT_QUEUE_CAP = 1024
-	NO_PRIORITY       = 0
-	LOW_PRIORITY      = 1
-	MEDIUM_PRIORITY   = 2
-	HIGH_PRIORITY     = 3
-	MAX_PRIORITY      = 4
+	DEFAULT_QUEUE_CAP  = 1024
+	MAX_MESSAGE_LENGHT = 1024 * 10
+	NO_PRIORITY        = 0
+	LOW_PRIORITY       = 1
+	MEDIUM_PRIORITY    = 2
+	HIGH_PRIORITY      = 3
+	MAX_PRIORITY       = 4
 )
 
 type QManager interface {
