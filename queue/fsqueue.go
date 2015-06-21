@@ -24,9 +24,9 @@ func getQueueFile(fs *FsQueue) (err error) {
 	return
 }
 
-func (fs *FsQueue) Push(o []byte) (err error) {
-	if err = getQueueFile(fs); err != nil {
-		return
+func (fs *FsQueue) Push(o []byte) {
+	if err := getQueueFile(fs); err != nil {
+		panic(err)
 	}
 	defer fs.File.Close()
 	fs.lock.Lock()
@@ -51,6 +51,7 @@ func (fs *FsQueue) Pop() []byte {
 	buf := bytes.NewBuffer(make([]byte, 0, fi.Size()))
 	fs.File.Seek(0, os.SEEK_SET)
 	io.Copy(buf, fs.File)
+
 	firstline, err := buf.ReadString('\n')
 	if err != nil && err != io.EOF {
 		return nil

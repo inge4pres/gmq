@@ -4,8 +4,6 @@ import (
 	"testing"
 )
 
-var message = []byte("TEST Message: you know, for testing...")
-
 func TestFsQueueFirstPush(t *testing.T) {
 	q := &FsQueue{
 		Name: "queue_test_1",
