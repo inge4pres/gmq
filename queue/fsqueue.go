@@ -1,8 +1,8 @@
 package gmq
 
 import (
-	"bufio"
-	"fmt"
+	"bytes"
+	"io"
 	"os"
 	"sync"
 )
@@ -19,29 +19,19 @@ type FsPrioQueue struct {
 	File       *os.File
 }
 
-func createQueueFile(fs *FsQueue) (err error) {
-	fs.File, err = os.Create(fs.Path + fs.Name)
-	return
-}
-
 func getQueueFile(fs *FsQueue) (err error) {
-	fs.File, err = os.OpenFile(fs.Path+fs.Name, os.O_RDWR, 660)
-	return
-}
-
-func appendQueueFile(fs *FsQueue) (err error) {
-	fs.File, err = os.OpenFile(fs.Path+fs.Name, os.O_APPEND, 660)
+	fs.File, err = os.OpenFile(fs.Path+fs.Name, os.O_RDWR|os.O_CREATE, 0666)
 	return
 }
 
 func (fs *FsQueue) Push(o []byte) (err error) {
-	if err = appendQueueFile(fs); err != nil {
-		err = createQueueFile(fs)
+	if err = getQueueFile(fs); err != nil {
+		return
 	}
 	defer fs.File.Close()
 	fs.lock.Lock()
-	fs.File.Write(o)
-	fs.File.WriteString("\n")
+	fs.File.Seek(0, os.SEEK_END)
+	fs.File.WriteString(string(o) + "\n")
 	fs.File.Sync()
 	fs.lock.Unlock()
 	return
@@ -54,10 +44,26 @@ func (fs *FsQueue) Pop() []byte {
 		return nil
 	}
 	defer fs.File.Close()
-	firstline, err := bufio.NewReader(fs.File).ReadString('\n')
+	fi, err := fs.File.Stat()
 	if err != nil {
 		return nil
 	}
+	buf := bytes.NewBuffer(make([]byte, 0, fi.Size()))
+	fs.File.Seek(0, os.SEEK_SET)
+	io.Copy(buf, fs.File)
+	firstline, err := buf.ReadString('\n')
+	if err != nil && err != io.EOF {
+		return nil
+	}
+
+	fs.File.Seek(0, os.SEEK_SET)
+	nw, err := io.Copy(fs.File, buf)
+	if err != nil {
+		return nil
+	}
+
+	fs.File.Truncate(nw)
+
 	ret = []byte(firstline)
 	fs.sync()
 	fs.lock.Unlock()
@@ -65,15 +71,6 @@ func (fs *FsQueue) Pop() []byte {
 }
 
 func (fs *FsQueue) sync() {
-	var buf []string
-	scanner := bufio.NewScanner(fs.File)
-	for scanner.Scan() {
-		fmt.Println("Reading from file :)")
-		line := scanner.Text()
-		buf = append(buf, line)
-	}
-	for s := range buf {
-		fs.File.WriteString(buf[s])
-	}
 	fs.File.Sync()
+	fs.File.Seek(0, os.SEEK_SET)
 }
