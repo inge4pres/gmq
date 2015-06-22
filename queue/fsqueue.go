@@ -24,9 +24,9 @@ func getQueueFile(fs *FsQueue) (err error) {
 	return
 }
 
-func (fs *FsQueue) Push(o []byte) {
+func (fs *FsQueue) Push(o []byte) error {
 	if err := getQueueFile(fs); err != nil {
-		panic(err)
+		return err
 	}
 	defer fs.File.Close()
 	fs.lock.Lock()
@@ -34,19 +34,19 @@ func (fs *FsQueue) Push(o []byte) {
 	fs.File.WriteString(string(o) + "\n")
 	fs.File.Sync()
 	fs.lock.Unlock()
-	return
+	return nil
 }
 
-func (fs *FsQueue) Pop() []byte {
+func (fs *FsQueue) Pop() ([]byte, error) {
 	fs.lock.Lock()
 	var ret []byte
 	if err := getQueueFile(fs); err != nil {
-		return nil
+		return nil, err
 	}
 	defer fs.File.Close()
 	fi, err := fs.File.Stat()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	buf := bytes.NewBuffer(make([]byte, 0, fi.Size()))
 	fs.File.Seek(0, os.SEEK_SET)
@@ -54,13 +54,13 @@ func (fs *FsQueue) Pop() []byte {
 
 	firstline, err := buf.ReadString('\n')
 	if err != nil && err != io.EOF {
-		return nil
+		return nil, err
 	}
 
 	fs.File.Seek(0, os.SEEK_SET)
 	nw, err := io.Copy(fs.File, buf)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	fs.File.Truncate(nw)
@@ -68,7 +68,7 @@ func (fs *FsQueue) Pop() []byte {
 	ret = []byte(firstline)
 	fs.sync()
 	fs.lock.Unlock()
-	return ret
+	return ret, nil
 }
 
 func (fs *FsQueue) sync() {

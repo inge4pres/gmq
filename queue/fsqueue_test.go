@@ -44,16 +44,57 @@ func TestFsQueueConcurrentPush(t *testing.T) {
 	}
 }
 
-func TestFsQueuePop(t *testing.T) {
+func TestFsQueueFirstPop(t *testing.T) {
 	q := &FsQueue{
 		Name: "queue_test_2",
 		Path: "../test/fs/",
 	}
-	ret := q.Pop()
+	ret, err := q.Pop()
 	// '\n' is a additive byte only used in Push()
 	if len(ret) != (len(message) + 1) {
 		t.Errorf("Message pop'd from queue incomplete! \n"+
 			"message: %d \n"+
 			"returned: %d", len(message), len(ret))
+	}
+	if err != nil {
+		t.Errorf("Error %t %s", err, err)
+	}
+}
+
+func TestFsQueueSequentialPop(t *testing.T) {
+	q := &FsQueue{
+		Name: "queue_test_2",
+		Path: "../test/fs/",
+	}
+	for i := 0; i < 4; i++ {
+		ret, err := q.Pop()
+		if len(ret) != (len(message) + 1) {
+			t.Errorf("Message pop'd from queue incomplete! \n"+
+				"message: %d \n"+
+				"returned: %d", len(message), len(ret))
+		}
+		if err != nil {
+			t.Errorf("Error %t %s", err, err)
+		}
+	}
+}
+
+func TestFsQueueConcurrentPop(t *testing.T) {
+	q := &FsQueue{
+		Name: "queue_test_2",
+		Path: "../test/fs/",
+	}
+	for i := 0; i < 5; i++ {
+		go func() {
+			ret, err := q.Pop()
+			if len(ret) != (len(message) + 1) {
+				t.Errorf("Message pop'd from queue incomplete! \n"+
+					"message: %d \n"+
+					"returned: %d", len(message), len(ret))
+			}
+			if err != nil {
+				t.Errorf("Error %t %s", err, err)
+			}
+		}()
 	}
 }
