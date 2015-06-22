@@ -13,9 +13,9 @@ const (
 	MAX_PRIORITY      = 4
 )
 
-type QManager interface {
-	Push([]byte)
-	Pop() []byte
+type QueueInterface interface {
+	Push([]byte) error
+	Pop() ([]byte, error)
 	sync()
 }
 
@@ -31,7 +31,7 @@ type PrioQueue struct {
 	QObj  map[int]map[int][]byte
 }
 
-func (q *Queue) Push(o []byte) {
+func (q *Queue) Push(o []byte) error {
 	last := len(q.QObj)
 	if last == 0 {
 		q.QObj = make(map[int][]byte, DEFAULT_QUEUE_CAP)
@@ -39,10 +39,11 @@ func (q *Queue) Push(o []byte) {
 	q.lock.Lock()
 	q.QObj[last] = o
 	q.lock.Unlock()
+	return nil
 }
 
-func (q *Queue) Pop() interface{} {
-	var obj interface{}
+func (q *Queue) Pop() ([]byte, error) {
+	var obj []byte
 	q.lock.RLock()
 	obj, ok := q.QObj[0]
 	if !ok {
@@ -50,7 +51,7 @@ func (q *Queue) Pop() interface{} {
 		obj = q.QObj[0]
 	}
 	q.lock.RUnlock()
-	return obj
+	return obj, nil
 }
 
 func (q *Queue) sync() {
