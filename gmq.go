@@ -9,11 +9,10 @@ import (
 )
 
 var configfile string
-var message = []byte("TEST Message: you know, for testing...")
 
 func main() {
 
-	flag.StringVar(&configfile, "f", "gmq.conf", "Location of configuation file")
+	flag.StringVar(&configfile, "f", "gmq.conf", "Configuration file")
 	flag.Parse()
 
 	//	if err := parseConfigFile(configfile); err != nil {
