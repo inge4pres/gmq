@@ -32,14 +32,16 @@ func (db *DbQueue) Pop() ([]byte, error) {
 	defer db.conn.Close()
 	var decode string
 	var id int64
-	if err := db.conn.QueryRow("SELECT FIRST(id) FROM " + db.Name).Scan(&id); err != nil {
+	if err := db.conn.QueryRow("SELECT MIN(id) FROM " + db.Name).Scan(&id); err != nil {
 		return nil, err
 	}
-	if err := db.conn.QueryRow("SELECT message FROM "+db.Name+" WHERE id = ?", id).Scan(&decode); err != nil {
-		return nil, err
-	}
-	if _, err := db.conn.Exec("UPDATE "+db.Name+" SET processed = 1 WHERE id = ?", id); err != nil {
-		return nil, err
+	if id > 0 {
+		if err := db.conn.QueryRow("SELECT message FROM "+db.Name+" WHERE id = ?", id).Scan(&decode); err != nil {
+			return nil, err
+		}
+		if _, err := db.conn.Exec("UPDATE "+db.Name+" SET processed = 1 WHERE id = ?", id); err != nil {
+			return nil, err
+		}
 	}
 	db.sync()
 	return base64.StdEncoding.DecodeString(decode)
