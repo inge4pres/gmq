@@ -1,20 +1,21 @@
 package gmqnet
 
 import (
+	q "gmq/queue"
 	"net"
 )
 
 const (
 	DEFAULT_LISTEN_PORT = "4884"
 	MAX_QUEUES          = 4096
-	MAX_MESSSAGE_LENGHT = 10240
+	MAX_MESSAGE_LENGHT  = 40960
 )
 
 type Server struct {
 	Proto, LocalInet, Port string
 }
 
-func (s *Server) Receive() (chan []byte, error) {
+func (s *Server) StartServer() (chan []byte, error) {
 	l, err := net.Listen(s.Proto, s.LocalInet+":"+s.Port)
 	if err != nil {
 		return nil, err
@@ -26,14 +27,23 @@ func (s *Server) Receive() (chan []byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		go func(c net.Conn) {
-			buf := make([]byte, MAX_MESSSAGE_LENGHT)
+		go func(c net.Conn) error {
+			buf := make([]byte, MAX_MESSAGE_LENGHT)
 			if _, err := c.Read(buf); err != nil {
-				panic(err)
+				return err
 			}
 			output <- buf
 			c.Close()
+			return nil
 		}(conn)
 	}
 	return output, nil
+}
+
+func (s *Server) Publish(q q.QueueInterface, input chan []byte) error {
+	return q.Push(<-input)
+}
+
+func (s *Server) Subscribe(q q.QueueInterface) ([]byte, error) {
+	return q.Pop()
 }
