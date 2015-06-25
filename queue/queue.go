@@ -2,10 +2,11 @@ package gmq
 
 import (
 	"sync"
+	"time"
 )
 
 const (
-	DEFAULT_QUEUE_CAP = 1024
+	DEFAULT_QUEUE_CAP = 4096
 	NO_PRIORITY       = 0
 	LOW_PRIORITY      = 1
 	MEDIUM_PRIORITY   = 2
@@ -17,6 +18,11 @@ type QueueInterface interface {
 	Push([]byte) error
 	Pop() ([]byte, error)
 	sync()
+}
+
+type QueueManager struct {
+	Obj  []QueueInterface
+	Tick time.Timer
 }
 
 type Queue struct {
