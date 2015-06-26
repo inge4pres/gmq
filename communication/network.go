@@ -40,10 +40,10 @@ func (s *Server) StartServer() (chan []byte, error) {
 	return output, nil
 }
 
-func (s *Server) Publish(q q.QueueInterface, input chan []byte) error {
-	return q.Push(<-input)
+func (s *Server) Produce(q q.QueueInterface, input []byte) error {
+	return q.Push(input)
 }
 
-func (s *Server) Subscribe(q q.QueueInterface) ([]byte, error) {
+func (s *Server) Consume(q q.QueueInterface) ([]byte, error) {
 	return q.Pop()
 }
