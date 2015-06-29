@@ -4,11 +4,11 @@ import (
 	"testing"
 )
 
-func TestServerReceive(t *testing.T) {
+func TestStartServer(t *testing.T) {
 	s := &Server{Port: DEFAULT_LISTEN_PORT, Proto: "tcp"}
-	data, err := s.Receive()
+	err := s.StartServer()
+	defer s.StopServer()
 	if err != nil {
 		t.Errorf("Error %T %s", err, err)
 	}
-	close(data)
 }
