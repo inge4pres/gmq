@@ -5,10 +5,11 @@ import (
 )
 
 type Message struct {
-	Operation byte   `json:"operation"`
+	Operation string `json:"operation"`
 	Queue     string `json:"queue"`
 	Payload   []byte `json:"payload"`
-	Confirmed byte   `json:"confirmation"`
+	Confirmed string `json:"confirmation"`
+	Error     error  `json:"error"`
 }
 
 func ParseMessage(in []byte) (*Message, error) {
@@ -16,6 +17,10 @@ func ParseMessage(in []byte) (*Message, error) {
 	return m, json.Unmarshal(in, m)
 }
 
-func WriteMessage(m *Message) ([]byte, error) {
-	return json.Marshal(m)
+func WriteMessage(m *Message) []byte {
+	resp, err := json.Marshal(m)
+	if err != nil {
+		resp = []byte("ERROR")
+	}
+	return resp
 }

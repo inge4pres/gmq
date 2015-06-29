@@ -21,7 +21,7 @@ type QueueInterface interface {
 }
 
 type QueueManager struct {
-	Obj  []QueueInterface
+	Obj  map[string]*Queue
 	Tick time.Timer
 }
 
