@@ -7,7 +7,7 @@ import (
 type Message struct {
 	Operation string `json:"operation"`
 	Queue     string `json:"queue"`
-	Payload   []byte `json:"payload"`
+	Payload   string `json:"payload"`
 	Confirmed string `json:"confirmation"`
 	Error     error  `json:"error"`
 }

@@ -1,6 +1,7 @@
 package gmqnet
 
 import (
+	"encoding/base64"
 	"errors"
 	q "gmq/queue"
 	"net"
@@ -70,23 +71,32 @@ func handleMessage(message []byte) []byte {
 	queue, ok := queues.Obj[parsed.Queue]
 	if !ok {
 		add := new(q.Queue)
+		add.Init()
 		add.QName = parsed.Queue
 		queues.Obj[parsed.Queue] = add
+		queue, _ = queues.Obj[parsed.Queue]
 	}
 	switch parsed.Operation {
 	case "P":
-		parsed.Error = produce(queue, parsed.Payload)
+		decoded, err := base64.StdEncoding.DecodeString(parsed.Payload)
+		if err != nil {
+			parsed.Error = err
+		}
+		parsed.Error = produce(queue, decoded)
 
 	case "S":
-		parsed.Payload, parsed.Error = consume(queue)
+		resp, err := consume(queue)
+		parsed.Payload = base64.StdEncoding.EncodeToString(resp)
+		parsed.Error = err
 
 	default:
-		parsed.Error = errors.New("Error: Method not implemented")
+		parsed.Error = errors.New("Error: Operation not implemented")
 	}
 
 	if parsed.Error != nil {
 		parsed.Confirmed = "N"
+	} else {
+		parsed.Confirmed = "Y"
 	}
-	parsed.Confirmed = "Y"
 	return WriteMessage(parsed)
 }
