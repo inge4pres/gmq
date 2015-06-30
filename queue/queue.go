@@ -37,11 +37,13 @@ type PrioQueue struct {
 	QObj  map[int]map[int][]byte
 }
 
+func (q *Queue) Init() *Queue {
+	q.QObj = make(map[int][]byte, DEFAULT_QUEUE_CAP)
+	return q
+}
+
 func (q *Queue) Push(o []byte) error {
 	last := len(q.QObj)
-	if last == 0 {
-		q.QObj = make(map[int][]byte, DEFAULT_QUEUE_CAP)
-	}
 	q.lock.Lock()
 	q.QObj[last] = o
 	q.lock.Unlock()
@@ -61,8 +63,12 @@ func (q *Queue) Pop() ([]byte, error) {
 }
 
 func (q *Queue) sync() {
-	for i := 1; i < len(q.QObj); i++ {
-		q.QObj[i-1] = q.QObj[i]
+	if len(q.QObj) == 1 {
+		q.Init()
+	} else {
+		for i := 1; i < len(q.QObj); i++ {
+			q.QObj[i-1] = q.QObj[i]
+		}
 	}
 }
 
