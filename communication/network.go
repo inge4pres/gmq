@@ -9,14 +9,13 @@ import (
 
 const (
 	DEFAULT_LISTEN_PORT = "4884"
-	MAX_QUEUES          = 4096
-	MAX_MESSAGE_LENGHT  = 40960
+	DEFAULT_PROTOCOL    = "tcp"
 )
 
 var queues q.QueueManager
 
 func init() {
-	queues.Obj = make(map[string]*q.Queue, MAX_QUEUES)
+	queues.Obj = make(map[string]*q.Queue)
 }
 
 type Server struct {
@@ -30,14 +29,14 @@ func (s *Server) StartServer() (err error) {
 		return err
 	}
 	defer s.listener.Close()
-	output := make(chan []byte, MAX_QUEUES)
+	output := make(chan []byte, q.MAX_QUEUE_NUMBER)
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {
 			return err
 		}
 		go func(c net.Conn) {
-			buf := make([]byte, MAX_MESSAGE_LENGHT)
+			buf := make([]byte, q.MAX_MESSAGE_LENGHT)
 			n, err := c.Read(buf)
 			if err != nil {
 				c.Write([]byte("Error: " + err.Error()))
@@ -71,7 +70,6 @@ func handleMessage(message []byte) []byte {
 	queue, ok := queues.Obj[parsed.Queue]
 	if !ok {
 		add := new(q.Queue)
-		add.Init()
 		add.QName = parsed.Queue
 		queues.Obj[parsed.Queue] = add
 		queue, _ = queues.Obj[parsed.Queue]
