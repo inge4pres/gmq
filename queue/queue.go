@@ -6,12 +6,9 @@ import (
 )
 
 const (
-	DEFAULT_QUEUE_CAP = 4096
-	NO_PRIORITY       = 0
-	LOW_PRIORITY      = 1
-	MEDIUM_PRIORITY   = 2
-	HIGH_PRIORITY     = 3
-	MAX_PRIORITY      = 4
+	DEFAULT_QUEUE_CAP  = 4096
+	MAX_QUEUE_NUMBER   = 4096
+	MAX_MESSAGE_LENGHT = 40960
 )
 
 type QueueInterface interface {
@@ -22,7 +19,7 @@ type QueueInterface interface {
 
 type QueueManager struct {
 	Obj  map[string]*Queue
-	Tick time.Timer
+	Tick time.Time
 }
 
 type Queue struct {
@@ -37,8 +34,12 @@ type PrioQueue struct {
 	QObj  map[int]map[int][]byte
 }
 
-func (q *Queue) Init() *Queue {
-	q.QObj = make(map[int][]byte, DEFAULT_QUEUE_CAP)
+func (q *Queue) Init(capacity int) *Queue {
+	if capacity > 0 {
+		q.QObj = make(map[int][]byte, capacity)
+	} else {
+		q.QObj = make(map[int][]byte, DEFAULT_QUEUE_CAP)
+	}
 	return q
 }
 
@@ -63,13 +64,10 @@ func (q *Queue) Pop() ([]byte, error) {
 }
 
 func (q *Queue) sync() {
-	if len(q.QObj) == 1 {
-		q.Init()
-	} else {
-		for i := 1; i < len(q.QObj); i++ {
-			q.QObj[i-1] = q.QObj[i]
-		}
+	for i := 1; i < len(q.QObj); i++ {
+		q.QObj[i-1] = q.QObj[i]
 	}
+	q.QObj[len(q.QObj)] = nil
 }
 
 func (q *PrioQueue) Push(prio int, o []byte) {
