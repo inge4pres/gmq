@@ -24,8 +24,8 @@ func getQueueFile(fs *FsQueue) (err error) {
 	return
 }
 
-func (fs *FsQueue) Push(o []byte) error {
-	if err := getQueueFile(fs); err != nil {
+func (fs FsQueue) Push(o []byte) error {
+	if err := getQueueFile(&fs); err != nil {
 		return err
 	}
 	defer fs.File.Close()
@@ -37,10 +37,10 @@ func (fs *FsQueue) Push(o []byte) error {
 	return nil
 }
 
-func (fs *FsQueue) Pop() ([]byte, error) {
+func (fs FsQueue) Pop() ([]byte, error) {
 	fs.lock.Lock()
 	var ret []byte
-	if err := getQueueFile(fs); err != nil {
+	if err := getQueueFile(&fs); err != nil {
 		return nil, err
 	}
 	defer fs.File.Close()
@@ -71,7 +71,7 @@ func (fs *FsQueue) Pop() ([]byte, error) {
 	return ret, nil
 }
 
-func (fs *FsQueue) sync() {
+func (fs FsQueue) sync() {
 	fs.File.Sync()
 	fs.File.Seek(0, os.SEEK_SET)
 }

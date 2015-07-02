@@ -50,7 +50,7 @@ func TestFsQueueFirstPop(t *testing.T) {
 		Path: "../test/fs/",
 	}
 	ret, err := q.Pop()
-	// '\n' is a additive byte only used in Push()
+	// '\n' is an additive byte only used in Push()
 	if len(ret) != (len(message) + 1) {
 		t.Errorf("Message pop'd from queue incomplete! \n"+
 			"message: %d \n"+
