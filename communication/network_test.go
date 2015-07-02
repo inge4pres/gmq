@@ -1,18 +1,26 @@
 package gmqnet
 
 import (
+	m "gmq/configuration"
 	"testing"
 	"time"
 )
 
+var configfile = "../test/configuration/example_gmq_config.json"
+
 func TestStartServer(t *testing.T) {
-	s := &Server{Port: DEFAULT_LISTEN_PORT, Proto: "tcp"}
-	go func(s *Server) {
-		err := s.StartServer()
+	config, err := m.ParseConfiguration(configfile)
+	if err != nil {
+		t.Errorf("Error %T %s", err, err)
+		return
+	}
+	go func() {
+		err = StartServer(config)
 		if err != nil {
 			t.Errorf("Error %T %s", err, err)
+			return
 		}
-	}(s)
+	}()
 	time.Sleep(time.Second * 120)
-	s.StopServer()
+	StopServer()
 }

@@ -3,6 +3,8 @@ package gmqnet
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
+	m "gmq/configuration"
 	q "gmq/queue"
 	"net"
 )
@@ -10,69 +12,65 @@ import (
 const (
 	DEFAULT_LISTEN_PORT = "4884"
 	DEFAULT_PROTOCOL    = "tcp"
+	DEFAULT_INET        = ""
 )
 
-var queues q.QueueManager
-
-func init() {
-	queues.Obj = make(map[string]*q.Queue)
-}
+var server *Server
 
 type Server struct {
 	Proto, LocalInet, Port string
 	listener               net.Listener
 }
 
-func (s *Server) StartServer() (err error) {
-	s.listener, err = net.Listen(s.Proto, s.LocalInet+":"+s.Port)
+func StartServer(params *m.Params) (err error) {
+	server = ConfigureServer(params)
+	fmt.Printf("Listening on inet '%s', port '%s', proto '%s'", server.LocalInet, server.Port, server.Proto)
+	//	server.listener, err = net.Listen(server.Proto, server.LocalInet+":"+server.Port)
+	server.listener, err = net.Listen(DEFAULT_PROTOCOL, ":"+DEFAULT_LISTEN_PORT)
 	if err != nil {
 		return err
 	}
-	defer s.listener.Close()
-	output := make(chan []byte, q.MAX_QUEUE_NUMBER)
+	output := make(chan []byte, params.Queue.MaxQueueN)
+	q, err := ConfigureQueue(params)
+	if err != nil {
+		return err
+	}
 	for {
-		conn, err := s.listener.Accept()
+		conn, err := server.listener.Accept()
 		if err != nil {
 			return err
 		}
-		go func(c net.Conn) {
-			buf := make([]byte, q.MAX_MESSAGE_LENGHT)
+		go func(c net.Conn, params *m.Params) {
+			buf := make([]byte, params.Queue.MaxMessageL)
 			n, err := c.Read(buf)
 			if err != nil {
 				c.Write([]byte("Error: " + err.Error()))
 				c.Close()
 			}
 			output <- buf[:n]
-			c.Write(handleMessage(<-output))
+			c.Write(handleMessage(<-output, q))
 			c.Close()
-		}(conn)
+		}(conn, params)
 	}
 	return nil
 }
 
-func (s *Server) StopServer() {
-	s.listener.Close()
+func StopServer() {
+	server.listener.Close()
 }
 
-func produce(q q.QueueInterface, input []byte) error {
+func publish(q q.QueueInterface, input []byte) error {
 	return q.Push(input)
 }
 
-func consume(q q.QueueInterface) ([]byte, error) {
+func subscribe(q q.QueueInterface) ([]byte, error) {
 	return q.Pop()
 }
 
-func handleMessage(message []byte) []byte {
+func handleMessage(message []byte, queue q.QueueInterface) []byte {
 	parsed, err := ParseMessage(message)
 	if err != nil {
-		return []byte("Error parsing the message: " + err.Error())
-	}
-	queue, ok := queues.Obj[parsed.Queue]
-	if !ok {
-		add := new(q.Queue)
-		add.QName = parsed.Queue
-		queues.Obj[parsed.Queue] = add
-		queue, _ = queues.Obj[parsed.Queue]
+		return []byte("Error parsing the incoming message: " + err.Error())
 	}
 	switch parsed.Operation {
 	case "P":
@@ -80,10 +78,10 @@ func handleMessage(message []byte) []byte {
 		if err != nil {
 			parsed.Error = err
 		}
-		parsed.Error = produce(queue, decoded)
+		parsed.Error = publish(queue, decoded)
 
 	case "S":
-		resp, err := consume(queue)
+		resp, err := subscribe(queue)
 		parsed.Payload = base64.StdEncoding.EncodeToString(resp)
 		parsed.Error = err
 
@@ -97,4 +95,53 @@ func handleMessage(message []byte) []byte {
 		parsed.Confirmed = "Y"
 	}
 	return WriteMessage(parsed)
+}
+
+func ConfigureServer(conf *m.Params) *Server {
+	var inet, proto, port string
+	if conf.Network.Port == "" {
+		port = DEFAULT_LISTEN_PORT
+	} else {
+		port = conf.Network.Port
+	}
+	if conf.Network.Proto == "" {
+		proto = DEFAULT_PROTOCOL
+	} else {
+		port = conf.Network.Proto
+	}
+	if conf.Network.Inet == "" {
+		inet = DEFAULT_INET
+	} else {
+		inet = conf.Network.Inet
+	}
+	return &Server{
+		Port:      port,
+		Proto:     proto,
+		LocalInet: inet,
+	}
+}
+
+func ConfigureQueue(conf *m.Params) (queue q.QueueInterface, err error) {
+	if conf.Queue.MaxQueueN < 1 {
+		err = errors.New("Please configure MAX_QUEUE_NUMBER with a positive number")
+	}
+	if conf.Queue.MaxQueueC < 1 {
+		err = errors.New("Please configure MAX_QUEUE_CAPACITY with a positive number")
+	}
+	if conf.Queue.MaxMessageL < 1 {
+		err = errors.New("Please configure MAX_MESSAGE_LENGHT with a positive number")
+	}
+	switch conf.Queue.QueueType {
+	case m.USE_MEMORY:
+		mq := new(q.Queue)
+		mq.Init(conf.Queue.MaxQueueC)
+		queue = mq
+	case m.USE_DATABASE:
+		queue = q.DbQueue{}
+	case m.USE_FILESYSTEM:
+		queue = q.FsQueue{}
+	default:
+		err = errors.New("Please configure QUEUE_TYPE with 1 (memory), 2 (database) or 3 (filesystem)")
+	}
+	return queue, err
 }
