@@ -1,11 +1,11 @@
 { 
  "network":{
-  "port":"4567",
+  "port":"4567"
   "interface":"",
   "protocol":""
  },
  "queue":{
-  "queue_type":1,
+  "queue_type":[""],
   "max_queue_number":32,
   "max_message_length":4096,
   "max_queue_capacity":4096
