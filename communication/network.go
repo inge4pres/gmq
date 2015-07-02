@@ -25,8 +25,8 @@ type Server struct {
 func StartServer(params *m.Params) (err error) {
 	server = ConfigureServer(params)
 	fmt.Printf("Listening on inet '%s', port '%s', proto '%s'", server.LocalInet, server.Port, server.Proto)
-	//	server.listener, err = net.Listen(server.Proto, server.LocalInet+":"+server.Port)
-	server.listener, err = net.Listen(DEFAULT_PROTOCOL, ":"+DEFAULT_LISTEN_PORT)
+	server.listener, err = net.Listen(server.Proto, server.LocalInet+":"+server.Port)
+
 	if err != nil {
 		return err
 	}

@@ -48,7 +48,7 @@ func ParseConfiguration(file string) (*Params, error) {
 		return nil, errors.New("Configuration file not available")
 	}
 	if err := json.Unmarshal(conf, params); err != nil {
-		return nil, err //errors.New("Unable to parse configuration file, check JSON is well formed")
+		return nil, errors.New("Unable to parse configuration file, check JSON is well formed")
 	}
 	return params, err
 }
