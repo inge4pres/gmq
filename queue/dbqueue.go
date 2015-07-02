@@ -16,8 +16,8 @@ func openConn(db *DbQueue) (err error) {
 	return err
 }
 
-func (db *DbQueue) Push(o []byte) error {
-	if err := openConn(db); err != nil {
+func (db DbQueue) Push(o []byte) error {
+	if err := openConn(&db); err != nil {
 		return err
 	}
 	defer db.conn.Close()
@@ -25,8 +25,8 @@ func (db *DbQueue) Push(o []byte) error {
 	return err
 }
 
-func (db *DbQueue) Pop() ([]byte, error) {
-	if err := openConn(db); err != nil {
+func (db DbQueue) Pop() ([]byte, error) {
+	if err := openConn(&db); err != nil {
 		return nil, err
 	}
 	defer db.conn.Close()
@@ -47,6 +47,6 @@ func (db *DbQueue) Pop() ([]byte, error) {
 	return base64.StdEncoding.DecodeString(decode)
 }
 
-func (db *DbQueue) sync() {
+func (db DbQueue) sync() {
 	db.conn.Exec("DELETE FROM " + db.Name + " WHERE processed = 1")
 }
