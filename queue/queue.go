@@ -2,7 +2,6 @@ package gmq
 
 import (
 	"sync"
-	"time"
 )
 
 const (
@@ -15,11 +14,6 @@ type QueueInterface interface {
 	Push([]byte) error
 	Pop() ([]byte, error)
 	sync()
-}
-
-type QueueManager struct {
-	Obj  map[string]*Queue
-	Tick time.Time
 }
 
 type Queue struct {
@@ -43,7 +37,7 @@ func (q *Queue) Init(capacity int) *Queue {
 	return q
 }
 
-func (q *Queue) Push(o []byte) error {
+func (q Queue) Push(o []byte) error {
 	last := len(q.QObj)
 	q.lock.Lock()
 	q.QObj[last] = o
@@ -51,7 +45,7 @@ func (q *Queue) Push(o []byte) error {
 	return nil
 }
 
-func (q *Queue) Pop() ([]byte, error) {
+func (q Queue) Pop() ([]byte, error) {
 	var obj []byte
 	q.lock.Lock()
 	if _, ok := q.QObj[0]; !ok {
@@ -63,14 +57,14 @@ func (q *Queue) Pop() ([]byte, error) {
 	return obj, nil
 }
 
-func (q *Queue) sync() {
+func (q Queue) sync() {
 	for i := 1; i < len(q.QObj); i++ {
 		q.QObj[i-1] = q.QObj[i]
 	}
 	q.QObj[len(q.QObj)] = nil
 }
 
-func (q *PrioQueue) Push(prio int, o []byte) {
+func (q PrioQueue) Push(prio int, o []byte) {
 	last := len(q.QObj[prio])
 	if last == 0 {
 		tQobj := make(map[int][]byte, DEFAULT_QUEUE_CAP)
@@ -81,7 +75,7 @@ func (q *PrioQueue) Push(prio int, o []byte) {
 	q.lock.Unlock()
 }
 
-func (q *PrioQueue) Pop(prio int) []byte {
+func (q PrioQueue) Pop(prio int) []byte {
 	var obj []byte
 	q.lock.Lock()
 	if _, ok := q.QObj[prio][0]; !ok {
@@ -92,7 +86,7 @@ func (q *PrioQueue) Pop(prio int) []byte {
 	return obj
 }
 
-func (q *PrioQueue) sync(prio int) {
+func (q PrioQueue) sync(prio int) {
 	for i := 1; i < len(q.QObj[prio]); i++ {
 		q.QObj[prio][i-1] = q.QObj[prio][i]
 	}

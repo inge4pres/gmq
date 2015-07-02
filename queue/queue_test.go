@@ -6,7 +6,7 @@ var message = []byte("TEST Message: you know, for testing...")
 var queue = &Queue{QName: "test_queue"}
 
 func TestQueueSimplePush(t *testing.T) {
-	queue.Init()
+	queue.Init(DEFAULT_QUEUE_CAP)
 	err := queue.Push(message)
 	if err != nil {
 		t.Errorf("Error %T %s", err, err)
@@ -29,7 +29,7 @@ func TestQueueSimplePop(t *testing.T) {
 }
 
 func TestQueueSequentialPush(t *testing.T) {
-	queue.Init()
+	queue.Init(DEFAULT_QUEUE_CAP)
 	for i := 0; i < 10; i++ {
 		err := queue.Push(message)
 		if err != nil {
@@ -56,7 +56,7 @@ func TestQueueSequentialPop(t *testing.T) {
 }
 
 func TestQueueConcurrentPush(t *testing.T) {
-	queue.Init()
+	queue.Init(DEFAULT_QUEUE_CAP)
 	for i := 0; i < 10; i++ {
 		go func() {
 			err := queue.Push(message)
