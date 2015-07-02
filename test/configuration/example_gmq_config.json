@@ -1,0 +1,20 @@
+{ 
+ "network":{
+  "port":"",
+  "interface":"",
+  "protocol":""
+ },
+ "queue":{
+  "queue_type":1,
+  "max_queue_number":32,
+  "max_message_length":4096,
+  "max_queue_capacity":4096
+  },
+ "database":{
+  "vendor":"mysql",
+  "dsn":"user:password@(hostname:port)/dbname"
+  },
+ "filesystem":{
+  "path":"./fs/"
+  }
+}
