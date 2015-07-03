@@ -48,9 +48,6 @@ func (q Queue) Push(o []byte) error {
 func (q Queue) Pop() ([]byte, error) {
 	var obj []byte
 	q.lock.Lock()
-	if _, ok := q.QObj[0]; !ok {
-		q.sync()
-	}
 	obj = q.QObj[0]
 	q.sync()
 	q.lock.Unlock()
@@ -58,8 +55,8 @@ func (q Queue) Pop() ([]byte, error) {
 }
 
 func (q Queue) sync() {
-	for i := 1; i < len(q.QObj); i++ {
-		q.QObj[i-1] = q.QObj[i]
+	for i := 0; i < len(q.QObj); i++ {
+		q.QObj[i] = q.QObj[i+1]
 	}
 	q.QObj[len(q.QObj)] = nil
 }
@@ -87,7 +84,8 @@ func (q PrioQueue) Pop(prio int) []byte {
 }
 
 func (q PrioQueue) sync(prio int) {
-	for i := 1; i < len(q.QObj[prio]); i++ {
-		q.QObj[prio][i-1] = q.QObj[prio][i]
+	for i := 0; i < len(q.QObj[prio])+1; i++ {
+		q.QObj[prio][i] = q.QObj[prio][i+1]
 	}
+	q.QObj[prio][len(q.QObj[prio])] = nil
 }
