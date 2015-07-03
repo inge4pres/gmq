@@ -1,5 +1,0 @@
-*.exe
-test/fs/queue_test_1
-test/fs/queue_test_3
-test/fs/queue_test_2
-queue/cover.out
