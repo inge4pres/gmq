@@ -15,6 +15,9 @@
   "dsn":"user:password@(hostname:port)/dbname"
   },
  "filesystem":{
-  "path":"./fs/"
-  }
+  "path":"../fs/"
+  },
+ "log":{
+  "path":"../log/"	
+ }
 }
