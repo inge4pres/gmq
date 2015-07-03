@@ -21,6 +21,6 @@ func TestStartServer(t *testing.T) {
 			return
 		}
 	}()
-	time.Sleep(time.Second * 120)
+	time.Sleep(time.Second * 60)
 	StopServer()
 }
