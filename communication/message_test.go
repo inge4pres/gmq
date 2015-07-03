@@ -23,3 +23,7 @@ func TestParseMessage(t *testing.T) {
 		return
 	}
 }
+
+func TestWriteMessage(t *testing.T) {
+
+}

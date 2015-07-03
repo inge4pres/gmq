@@ -34,11 +34,17 @@ type FsConf struct {
 	Path string `json:"path"`
 }
 
+type LogConf struct {
+	Path string `json:"path"`
+	Name string `json:"name"`
+}
+
 type Params struct {
 	Network NetConf `json:"network"`
 	Queue   QConf   `json:"queue"`
 	Db      DbConf  `json:"database"`
 	Fs      FsConf  `json:"filesystem"`
+	Log     LogConf `json:"log"`
 }
 
 func ParseConfiguration(file string) (*Params, error) {

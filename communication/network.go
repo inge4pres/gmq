@@ -3,7 +3,6 @@ package gmqnet
 import (
 	"encoding/base64"
 	"errors"
-	"fmt"
 	m "gmq/configuration"
 	q "gmq/queue"
 	"net"
@@ -24,7 +23,6 @@ type Server struct {
 
 func StartServer(params *m.Params) (err error) {
 	server = ConfigureServer(params)
-	fmt.Printf("Listening on inet '%s', port '%s', proto '%s'", server.LocalInet, server.Port, server.Proto)
 	server.listener, err = net.Listen(server.Proto, server.LocalInet+":"+server.Port)
 
 	if err != nil {
