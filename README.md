@@ -11,7 +11,7 @@ At the moment a GMQ Server does not support distribution accross multiple nodes,
 
 ##### Deploy GMQ Server
 
-First download the code and build it: Go 1.4 is recommended.
+Download the code and build it: Go 1.4 is recommended.
 	go get github.com/inge4pres/gmq
 	cd gmq/server
 	go build gmqserver.go
@@ -22,7 +22,16 @@ Start the server with
 
 ##### Deploy GMQ Client
 
+Build the client
+	cd gmq/client
+	go build gmqclient.go
+
+Start the client with parameters from command line (basic usage)
+**Publish**
+	./gmqclient -s gmqserver.mydomain.com:4567 -q myqueue -a P -m "base64messagetobesendtotheserver"
+**Subscribe**
+	./gmqclient -s gmqserver.mydomain.com:4567 -q myqueue -a S
 
 ##### _Security Notice_
 
-GMQ server does not support TLS communication (at the moment) and does not use any form of  authentication mechanism, so be sure to have set up proper security with firewall and access to the server only from clients you trust.
+GMQ server does not support TLS communication (at the moment) and does not use any authentication mechanism; be sure to have set up proper security with firewall and access to the server only from clients you trust.
