@@ -90,6 +90,7 @@ func handleMessage(message []byte, queue q.QueueInterface) []byte {
 	if parsed.Error != nil {
 		parsed.Confirmed = "N"
 	} else {
+		syncWithCluster(parsed)
 		parsed.Confirmed = "Y"
 	}
 	return WriteMessage(parsed)
