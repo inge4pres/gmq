@@ -62,7 +62,7 @@ func ClusterPeerDiscovery(params *m.Params) ([]*Server, error) {
 }
 
 func dialServer(ip, port string, timeout int64) *Server {
-	if _, err := net.DialTimeout("tcp", ip+":"+port, time.Duration(timeout<<3)); err != nil {
+	if _, err := net.DialTimeout("tcp", ip+":"+port, time.Duration(timeout * 10>>6)); err != nil {
 		return nil
 	}
 	return &Server{Port: port, LocalInet: ip, Proto: "tcp"}
