@@ -53,7 +53,7 @@ func dialServer(ip, port string, timeout int64) *Server {
 	if _, err := net.DialTimeout("tcp", ip+":"+port, time.Duration(timeout*1000000)); err != nil {
 		return nil
 	}
-	return &Server{Port: port, LocalInet: ip, Proto: "tcp4"}
+	return &Server{Port: port, LocalInet: ip, Proto: "tcp"}
 }
 
 func checkLocalInet(params *m.Params) {
@@ -73,6 +73,20 @@ func checkLocalInet(params *m.Params) {
 	return
 }
 
-func syncMessage(mex *Message) {
-
+func syncMessage(mex *Message) error {
+	errs := make(chan error)
+	for c := range cluster {
+		go func() {
+			conn, err := net.Dial("tcp", cluster[c].LocalInet+":"+cluster[c].Port)
+			if err != nil {
+				errs <- err
+			}
+			written, err := conn.Write(WriteMessage(mex))
+			if written < len(WriteMessage(mex)) {
+				errs <- errors.New("Failed to write complete message in cluster")
+			}
+			errs <- err
+		}()
+	}
+	return <-errs
 }
