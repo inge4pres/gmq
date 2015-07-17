@@ -73,7 +73,7 @@ func checkLocalInet(params *m.Params) {
 	return
 }
 
-func syncMessage(mex *Message) error {
+func syncMessage(mex []byte) error {
 	errs := make(chan error)
 	for c := range cluster {
 		go func() {
@@ -81,8 +81,8 @@ func syncMessage(mex *Message) error {
 			if err != nil {
 				errs <- err
 			}
-			written, err := conn.Write(WriteMessage(mex))
-			if written < len(WriteMessage(mex)) {
+			written, err := conn.Write(mex)
+			if written < len(mex) {
 				errs <- errors.New("Failed to write complete message in cluster")
 			}
 			errs <- err

@@ -91,6 +91,10 @@ func handleMessage(message []byte, queue q.QueueInterface) []byte {
 		parsed.Confirmed = "N"
 	} else {
 		parsed.Confirmed = "Y"
+		switch queue.(type) {
+		case q.Queue:
+			syncMessage(message)
+		}
 	}
 	return WriteMessage(parsed)
 }
