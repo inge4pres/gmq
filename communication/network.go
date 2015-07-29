@@ -42,7 +42,6 @@ func StartServer(params *m.Params) (err error) {
 			buf := make([]byte, params.Queue.MaxMessageL)
 			n, err := c.Read(buf)
 			if err != nil {
-				c.Write([]byte("Error: " + err.Error()))
 				c.Close()
 			}
 			output <- buf[:n]
