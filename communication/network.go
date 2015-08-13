@@ -42,7 +42,6 @@ func StartServer(params *m.Params) (err error) {
 			buf := make([]byte, params.Queue.MaxMessageL)
 			n, err := c.Read(buf)
 			if err != nil {
-				c.Write([]byte("Error: " + err.Error()))
 				c.Close()
 			}
 			output <- buf[:n]
@@ -91,6 +90,10 @@ func handleMessage(message []byte, queue q.QueueInterface) []byte {
 		parsed.Confirmed = "N"
 	} else {
 		parsed.Confirmed = "Y"
+		switch queue.(type) {
+		case q.Queue:
+			syncMessage(message)
+		}
 	}
 	return WriteMessage(parsed)
 }
