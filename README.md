@@ -5,9 +5,15 @@ GMQ is an asynchronous message dispatcher, following the publish/subscribe queue
 Clients will either generate a message on the server queue (publish) or retrieve from the server the first element in the queue (subscribe).
 If a queue doesn't exist the first message published on the queue will create it; if there are no messages in the queue, the server will return an empty message.
 
-Messages are in JSON format, with literal attributes to identify the queue and the result of operation, plus a base64 encoded payload.
+Messages are in JSON format, with literal attributes to identify the queue and the result of operation and a base64 encoded payload (the message to be stored in the queue).
+
 You decouple application layers by exchanging binary messages within your infrastructure deploying a server and a client on each componenent; this model is especially good for distributed systems.
-At the moment a GMQ Server does not support distribution accross multiple nodes, but this is a definitive to-be implementation.
+At the moment a GMQ Server does not support memory sinchronization accross multiple nodes, but this is a definitive to-be implementation.
+
+GMQ should be configred to store messages in:
+ - memory, very fast but unreliable for production: memory synchronization between multiple nodes not supported yet
+ - database (MySQL), Postgres support to come, messages durability relies on database
+ - filesystem, one file per queue will be created, the slowest but most reliable mode for production use
 
 ##### Deploy GMQ Server
 
