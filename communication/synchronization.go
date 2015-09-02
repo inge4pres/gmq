@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	DEFAULT_CLUSTER_PORT = "4812"
-	DEFAULT_TIMEOUT_MSEC = 4000
+	DEFAULT_CLUSTER_PROTO = "tcp"
+	DEFAULT_CLUSTER_PORT  = "4812"
+	DEFAULT_TIMEOUT_MSEC  = 4000
 )
 
 var cluster map[string]*Server
@@ -28,15 +29,18 @@ func ClusterPeerDiscovery(params *m.Params) error {
 	if params.Cluster.Port == "" {
 		params.Cluster.Port = DEFAULT_CLUSTER_PORT
 	}
-
-	ip := strings.Split(params.Cluster.Network, ".")
+	if params.Cluster.Proto == "" {
+		params.Cluster.Proto = DEFAULT_CLUSTER_PROTO
+	}
+	//TODO rafactor with parseCIDR()
+	ip, ipNet, err := net.ParseCIDR(params.Cluster.Cidr)
 	if len(ip) != 4 {
 		return errors.New("IP in NETWORK not in IPv4 format, IPv6 currently not supported")
 	}
 	for i := 1; i < 255; i++ {
 		ip[3] = string(i)
 		go func() {
-			srvs <- dialServer(strings.Join(ip, "."), params.Cluster.Port, params.Cluster.TimeoutMsec)
+			srvs <- dialServer(strings.Join(ip, "."), params.Cluster.Port, params.Cluster.Proto, params.Cluster.TimeoutMsec)
 		}()
 		select {
 		case server := <-srvs:
@@ -49,11 +53,11 @@ func ClusterPeerDiscovery(params *m.Params) error {
 	return nil
 }
 
-func dialServer(ip, port string, timeout int64) *Server {
-	if _, err := net.DialTimeout("tcp", ip+":"+port, time.Duration(timeout*1000000)); err != nil {
+func dialServer(ip, port, proto string, timeout int64) *Server {
+	if _, err := net.DialTimeout(proto, ip+":"+port, time.Duration(timeout*1000000)); err != nil {
 		return nil
 	}
-	return &Server{Port: port, LocalInet: ip, Proto: "tcp"}
+	return &Server{Port: port, LocalInet: ip, Proto: proto}
 }
 
 func checkLocalInet(params *m.Params) {
@@ -77,13 +81,13 @@ func syncMessage(mex []byte) error {
 	errs := make(chan error)
 	for c := range cluster {
 		go func() {
-			conn, err := net.Dial("tcp", cluster[c].LocalInet+":"+cluster[c].Port)
+			conn, err := net.Dial(cluster[c].Proto, cluster[c].LocalInet+":"+cluster[c].Port)
 			if err != nil {
 				errs <- err
 			}
 			written, err := conn.Write(mex)
 			if written < len(mex) {
-				errs <- errors.New("Failed to write complete message in cluster")
+				errs <- errors.New("Failed to write complete message synchronization in cluster")
 			}
 			errs <- err
 		}()

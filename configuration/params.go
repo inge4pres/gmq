@@ -40,9 +40,10 @@ type LogConf struct {
 }
 
 type ClusterConf struct {
-	Network     string `json:"network"`
+	Proto       string `json:"proto"`
 	Port        string `json:"cluster_port"`
 	TimeoutMsec int64  `json:"timeout_msec"`
+	Cidr        string `json:"cidr"`
 }
 
 type Params struct {

@@ -14,13 +14,23 @@ const (
 	DEFAULT_INET        = ""
 )
 
+//The main GMQ Server
 var server *Server
 
+/*
+Server
+TCP, configured with a Protocol (tcp, tcp4, tcp6), a Local Interface to listen on (can be omitted) and a Port (if empty 4884 is used)
+*/
 type Server struct {
 	Proto, LocalInet, Port string
 	listener               net.Listener
 }
 
+/*
+StartServer
+Configured with parameters from file, starts a Server handler for clients' requests
+Multiple connections handled in separate goroutines
+*/
 func StartServer(params *m.Params) (err error) {
 	server = ConfigureServer(params)
 	server.listener, err = net.Listen(server.Proto, server.LocalInet+":"+server.Port)
@@ -52,6 +62,10 @@ func StartServer(params *m.Params) (err error) {
 	return nil
 }
 
+/*
+StopServer
+Stops the TCP messaging server
+*/
 func StopServer() {
 	server.listener.Close()
 }
@@ -98,6 +112,10 @@ func handleMessage(message []byte, queue q.QueueInterface) []byte {
 	return WriteMessage(parsed)
 }
 
+/*
+ConfigureServer
+Handle TCP server configuration, using DEFAULTs from const when no value is specified in JSON configuration file
+*/
 func ConfigureServer(conf *m.Params) *Server {
 	var inet, proto, port string
 	if conf.Network.Port == "" {
@@ -122,6 +140,10 @@ func ConfigureServer(conf *m.Params) *Server {
 	}
 }
 
+/*
+ConfigureServer
+Handle single queue configuration, using DEFAULTs from const when no value is specified in JSON configuration file
+*/
 func ConfigureQueue(conf *m.Params) (queue q.QueueInterface, err error) {
 	if conf.Queue.MaxQueueN < 1 {
 		err = errors.New("Please configure MAX_QUEUE_NUMBER with a positive number")
