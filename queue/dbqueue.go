@@ -16,6 +16,18 @@ func openConn(db *DbQueue) (err error) {
 	return err
 }
 
+func (db DbQueue) Create(name string) QueueInterface {
+	dbq := DbQueue{Name: name}
+	//TODO create table on DB and release object
+	//  create table queue (
+	//	id serial PRIMARY KEY NOT NULL AUTO_INCREMENT,
+	//	message MEDIUMTEXT,
+	//	processed BOOL DEFAULT FALSE,
+	//	UNIQUE INDEX proc_idx USING BTREE (id, processed)
+	//);
+	return dbq
+}
+
 func (db DbQueue) Push(o []byte) error {
 	if err := openConn(&db); err != nil {
 		return err

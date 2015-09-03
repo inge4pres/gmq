@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"flag"
-	c "gmq/communication"
+	"gmq/communication"
 	"io"
 	"log"
 	"net"
@@ -45,14 +45,14 @@ func initLog() *log.Logger {
 	return log.New(file, "GMQ Client: ", log.LstdFlags)
 }
 
-func configureCall() *c.Message {
+func configureCall() *gmqnet.Message {
 	if action == "" {
 		logger.Fatalln("Action cannot be null! Set -a")
 	}
 	if qname == "" {
 		logger.Fatalln("Queue name cannot be null! Set -q")
 	}
-	return &c.Message{
+	return &gmqnet.Message{
 		Operation: action,
 		Queue:     qname,
 		Payload:   payload,
@@ -70,13 +70,13 @@ func configureOutput() io.Writer {
 	return out
 }
 
-func callServer(mex *c.Message) []byte {
+func callServer(mex *gmqnet.Message) []byte {
 	var resp bytes.Buffer
 	conn, err := net.Dial(protocol, server)
 	if err != nil {
 		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err)
 	}
-	if _, err := conn.Write(c.WriteMessage(mex)); err != nil {
+	if _, err := conn.Write(gmqnet.WriteMessage(mex)); err != nil {
 		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err)
 	}
 	if _, err := conn.Read(resp.Bytes()); err != nil {

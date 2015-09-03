@@ -24,6 +24,11 @@ func getQueueFile(fs *FsQueue) (err error) {
 	return
 }
 
+func (fs FsQueue) Create(name string) QueueInterface {
+	fsq := FsQueue{Name: name}
+	return fsq
+}
+
 func (fs FsQueue) Push(o []byte) error {
 	if err := getQueueFile(&fs); err != nil {
 		return err

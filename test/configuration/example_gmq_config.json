@@ -1,8 +1,8 @@
 { 
  "network":{
-  "port":"4567",
+  "port":"4884",
   "interface":"",
-  "protocol":""
+  "protocol":"tcp4"
  },
  "queue":{
   "queue_type":1,
