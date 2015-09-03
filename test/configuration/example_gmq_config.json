@@ -1,6 +1,6 @@
 { 
  "network":{
-  "port":"4884",
+  "port":"4567",
   "interface":"",
   "protocol":"tcp4"
  },
