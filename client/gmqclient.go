@@ -15,13 +15,13 @@ var logger *log.Logger
 
 func main() {
 
-	flag.StringVar(&action, "-a", "", "Action to be performed: Publish / Subscribe")
-	flag.StringVar(&qname, "-q", "", "Queue name")
-	flag.StringVar(&payload, "-m", "", "Base64 encoded payload to use (only needed with \"-o P\")")
-	flag.StringVar(&protocol, "-p", "tcp", "Protocol type: tcp4 or tcp6 (default to systems)")
-	flag.StringVar(&logfile, "-l", "", "Log destination: if not set, defaults to STDOUT")
-	flag.StringVar(&server, "-s", "localhost:4567", "Server address: (DNS|IP)[:PORT] form ")
-	flag.StringVar(&output, "-o", "", "Output file, if empty defaults to STDOUT")
+	flag.StringVar(&action, "a", "", "Action to be performed: P = Publish, S = Subscribe")
+	flag.StringVar(&qname, "q", "", "Queue name")
+	flag.StringVar(&payload, "m", "", "Base64 encoded payload to use (only needed with \"-a P\")")
+	flag.StringVar(&protocol, "p", "tcp", "Protocol type: tcp4 or tcp6 (default to system settings)")
+	flag.StringVar(&logfile, "l", "", "Log destination: if not set, defaults to STDOUT")
+	flag.StringVar(&server, "s", "localhost:4567", "Server address: (DNS|IP)[:PORT] form ")
+	flag.StringVar(&output, "o", "", "Output file, if empty defaults to STDOUT")
 	flag.Parse()
 
 	logger = initLog()
@@ -52,6 +52,7 @@ func configureCall() *gmqnet.Message {
 	if qname == "" {
 		logger.Fatalln("Queue name cannot be null! Set -q")
 	}
+
 	return &gmqnet.Message{
 		Operation: action,
 		Queue:     qname,
@@ -63,7 +64,7 @@ func configureOutput() io.Writer {
 	if output == "" {
 		return os.Stdout
 	}
-	out, err := os.OpenFile(output, os.O_CREATE, 0660)
+	out, err := os.OpenFile(output, os.O_RDWR|os.O_CREATE, 0660)
 	if err != nil {
 		logger.Fatalln("Error opening output file!")
 	}
@@ -74,13 +75,13 @@ func callServer(mex *gmqnet.Message) []byte {
 	var resp bytes.Buffer
 	conn, err := net.Dial(protocol, server)
 	if err != nil {
-		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err)
+		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err.Error())
 	}
 	if _, err := conn.Write(gmqnet.WriteMessage(mex)); err != nil {
-		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err)
+		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err.Error())
 	}
 	if _, err := conn.Read(resp.Bytes()); err != nil {
-		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err)
+		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err.Error())
 	}
 	return resp.Bytes()
 }

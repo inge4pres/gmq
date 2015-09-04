@@ -25,24 +25,28 @@ func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error
 				c.Close()
 			}
 			output <- buf[:n]
-			c.Write(handleMessage(<-output, gmq.QueueInstance))
+			c.Write(handleMessage(params, <-output, gmq.QueueInstance))
 			c.Close()
 		}(conn, params)
 	}
 	return nil
 }
 
-func handleMessage(message []byte, queues map[string]gmq.QueueInterface) []byte {
-	var queue gmq.QueueInterface
-
+func handleMessage(params *gmqconf.Params, message []byte, queues map[string]gmq.QueueInterface) []byte {
+	queue, err := gmqconf.ConfigureQueue(params)
+	if err != nil {
+		return []byte("Error parsing the server coniguration: " + err.Error())
+	}
 	parsed, err := ParseMessage(message)
 	if err != nil {
 		return []byte("Error parsing the incoming message: " + err.Error())
 	}
 
-	if queue, exists := queues[parsed.Queue]; !exists {
+	if _, exists := queues[parsed.Queue]; !exists {
 		queue.Create(parsed.Queue)
 		queues[parsed.Queue] = queue
+	} else {
+		queue = queues[parsed.Queue]
 	}
 
 	switch parsed.Operation {

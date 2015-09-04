@@ -18,7 +18,7 @@ func main() {
 
 	config, err := gmqconf.ParseConfiguration(configfile)
 	if err != nil {
-		logger.Fatalf("Could not start server: configuration error\n%T\n%s\n", err, err)
+		log.New(os.Stdout, "[GMQ Server]", log.LstdFlags).Fatalf("Could not start server: configuration error\n%T\n%s\n", err, err)
 	}
 	if logger, err = configureLogger(config); err != nil {
 		logger.Printf("Defaulting log to STDOUT because log file is not configured or is unaccessible\n%T\n%s", err, err)
@@ -33,7 +33,7 @@ func main() {
 	defer server.StopServer()
 
 	if err != nil {
-		logger.Printf("Error in GMQ server communication:\n%T\n%s\n", err, err)
+		logger.Fatalf("Error in GMQ server communication:\n%T\n%s\n", err, err)
 		return
 	}
 
