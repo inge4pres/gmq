@@ -18,13 +18,18 @@ func openConn(db *DbQueue) (err error) {
 
 func (db DbQueue) Create(name string) QueueInterface {
 	dbq := DbQueue{Name: name}
-	//TODO create table on DB and release object
+	//TODO create table on DB
 	//  create table queue (
 	//	id serial PRIMARY KEY NOT NULL AUTO_INCREMENT,
 	//	message MEDIUMTEXT,
 	//	processed BOOL DEFAULT FALSE,
 	//	UNIQUE INDEX proc_idx USING BTREE (id, processed)
 	//);
+	sql := "CREATE TABLE ? ( id serial PRIMARY KEY NOT NULL AUTO_INCREMENT, message MEDIUMTEXT,processed BOOL DEFAULT FALSE, UNIQUE INDEX proc_idx USING BTREE (id, processed));"
+	openConn(&db)
+	//err ignored here: will be thorwed later when accessing the table
+	db.conn.Exec(sql, name)
+
 	return dbq
 }
 
