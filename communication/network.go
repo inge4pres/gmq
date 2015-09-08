@@ -9,15 +9,16 @@ import (
 )
 
 func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error) {
-
+	//Init singletons
 	output := make(chan []byte, params.Queue.MaxQueueN)
+	gmq.InitQueueInstance(params.Queue.MaxQueueN)
 
 	for {
 		conn, err := server.Listener.Accept()
 		if err != nil {
 			return err
 		}
-		go func(c net.Conn, params *gmqconf.Params) {
+		go func(c net.Conn, params *gmqconf.Params, queues map[string]gmq.QueueInterface) {
 			buf := make([]byte, params.Queue.MaxMessageL)
 			n, err := c.Read(buf)
 			if err != nil {
@@ -25,9 +26,9 @@ func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error
 				c.Close()
 			}
 			output <- buf[:n]
-			c.Write(handleMessage(params, <-output, gmq.QueueInstance))
+			c.Write(handleMessage(params, <-output, queues))
 			c.Close()
-		}(conn, params)
+		}(conn, params, gmq.QueueInstance)
 	}
 	return nil
 }
