@@ -6,6 +6,7 @@ import (
 	"gmq/configuration"
 	"gmq/queue"
 	"net"
+	"strconv"
 )
 
 func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error) {
@@ -44,7 +45,10 @@ func handleMessage(params *gmqconf.Params, message []byte, queues map[string]gmq
 	}
 
 	if _, exists := queues[parsed.Queue]; !exists {
-		queue.Create(parsed.Queue)
+		_, err := queue.Create(parsed.Queue)
+		if err != nil {
+			parsed.Error = err
+		}
 		queues[parsed.Queue] = queue
 	} else {
 		queue = queues[parsed.Queue]
@@ -57,14 +61,21 @@ func handleMessage(params *gmqconf.Params, message []byte, queues map[string]gmq
 			parsed.Error = err
 		}
 		parsed.Error = publish(parsed.Queue, queue, decoded)
+		break
 
 	case "S":
 		resp, err := subscribe(parsed.Queue, queue)
 		parsed.Payload = base64.StdEncoding.EncodeToString(resp)
 		parsed.Error = err
+		break
+
+	case "L":
+		parsed.Payload, parsed.Error = list(parsed.Queue, queue)
+		break
 
 	default:
-		parsed.Error = errors.New("Error: Operation not implemented")
+		parsed.Error = errors.New("Error: operation not yet implemented")
+		break
 	}
 
 	if parsed.Error != nil {
@@ -82,4 +93,9 @@ func publish(qname string, q gmq.QueueInterface, input []byte) error {
 
 func subscribe(qname string, q gmq.QueueInterface) ([]byte, error) {
 	return q.Pop()
+}
+
+func list(qname string, q gmq.QueueInterface) (string, error) {
+	lenght, err := gmq.GetQueueLength(qname)
+	return strconv.Itoa(lenght), err
 }
