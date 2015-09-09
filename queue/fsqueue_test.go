@@ -11,7 +11,7 @@ func TestFsQueueFirstPush(t *testing.T) {
 	}
 	err := q.Push(message)
 	if err != nil {
-		t.Errorf("Error: %T %s", err, err)
+		t.Errorf("Error: %T %s", err, err.Error())
 	}
 }
 
@@ -23,7 +23,7 @@ func TestFsQueueSequentialPush(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		err := q.Push(message)
 		if err != nil {
-			t.Errorf("Error: %T %s", err, err)
+			t.Errorf("Error: %T %s", err, err.Error())
 		}
 	}
 }
@@ -38,7 +38,7 @@ func TestFsQueueConcurrentPush(t *testing.T) {
 		go func() {
 			err := q.Push(message)
 			if err != nil {
-				t.Errorf("Error: %T %s", err, err)
+				t.Errorf("Error: %T %s", err, err.Error())
 			}
 		}()
 	}
@@ -57,7 +57,7 @@ func TestFsQueueFirstPop(t *testing.T) {
 			"returned: %d", len(message), len(ret))
 	}
 	if err != nil {
-		t.Errorf("Error %t %s", err, err)
+		t.Errorf("Error %T %s", err, err.Error())
 	}
 }
 
@@ -74,7 +74,7 @@ func TestFsQueueSequentialPop(t *testing.T) {
 				"returned: %d", len(message), len(ret))
 		}
 		if err != nil {
-			t.Errorf("Error %t %s", err, err)
+			t.Errorf("Error %T %s", err, err)
 		}
 	}
 }

@@ -25,9 +25,14 @@ func (q *Queue) Init(capacity int) *Queue {
 	return q
 }
 
-func (q Queue) Create(name string) QueueInterface {
+func (q Queue) GetLength() (int, error) {
+	ret := len(q.QObj)
+	return ret, nil
+}
+
+func (q Queue) Create(name string) (QueueInterface, error) {
 	mq := Queue{QName: name}
-	return mq
+	return mq, nil
 }
 
 func (q Queue) Push(o []byte) error {

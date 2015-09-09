@@ -1,6 +1,7 @@
 package gmq
 
 import (
+	"bufio"
 	"bytes"
 	"io"
 	"os"
@@ -24,9 +25,20 @@ func getQueueFile(fs *FsQueue) (err error) {
 	return
 }
 
-func (fs FsQueue) Create(name string) QueueInterface {
+func (fs FsQueue) GetLength() (int, error) {
+	var ret int
+	read := bufio.NewReader(fs.File)
+	_, isPrefix, err := read.ReadLine()
+	for err == nil && !isPrefix {
+		ret++
+		_, isPrefix, err = read.ReadLine()
+	}
+	return ret, err
+}
+
+func (fs FsQueue) Create(name string) (QueueInterface, error) {
 	fsq := FsQueue{Name: name}
-	return fsq
+	return fsq, getQueueFile(&fsq)
 }
 
 func (fs FsQueue) Push(o []byte) error {

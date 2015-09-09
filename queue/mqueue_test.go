@@ -9,7 +9,7 @@ func TestQueueSimplePush(t *testing.T) {
 	queue.Init(DEFAULT_QUEUE_CAP)
 	err := queue.Push(message)
 	if err != nil {
-		t.Errorf("Error %T %s", err, err)
+		t.Errorf("Error %T %s", err, err.Error())
 	}
 	if len(queue.QObj) != 1 {
 		t.Error("Push failed!")
@@ -19,7 +19,7 @@ func TestQueueSimplePush(t *testing.T) {
 func TestQueueSimplePop(t *testing.T) {
 	ret, err := queue.Pop()
 	if err != nil {
-		t.Errorf("Error %t %s", err, err)
+		t.Errorf("Error %T %s", err, err.Error())
 	}
 	if len(ret) != len(message) {
 		t.Errorf("Message pop'd from queue incomplete! \n"+
@@ -33,7 +33,7 @@ func TestQueueSequentialPush(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		err := queue.Push(message)
 		if err != nil {
-			t.Errorf("Error %T %s", err, err)
+			t.Errorf("Error %T %s", err, err.Error())
 		}
 	}
 	if len(queue.QObj) < 10 {
@@ -45,7 +45,7 @@ func TestQueueSequentialPop(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		ret, err := queue.Pop()
 		if err != nil {
-			t.Errorf("Error %T %s", err, err)
+			t.Errorf("Error %T %s", err, err.Error())
 		}
 		if len(ret) != len(message) {
 			t.Errorf("Message pop'd from queue incomplete! \n"+
@@ -61,7 +61,7 @@ func TestQueueConcurrentPush(t *testing.T) {
 		go func() {
 			err := queue.Push(message)
 			if err != nil {
-				t.Errorf("Error %T %s", err, err)
+				t.Errorf("Error %T %s", err, err.Error())
 			}
 		}()
 	}
