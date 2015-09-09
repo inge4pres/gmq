@@ -1,7 +1,7 @@
 # GMQ
 #### _Golang Message Queue_
 
-GMQ is an asynchronous message dispatcher, following the publish/subscribe queue architecture; a FIFO model regulates the queue.
+GMQ is an asynchronous message dispatcher implementing the publish/subscribe queue architecture; a FIFO model regulates the queue.
 Clients will either generate a message on the server queue (publish) or retrieve from the server the first element in the queue (subscribe).
 If a queue doesn't exist the first message published on the queue will create it; if there are no messages in the queue, the server will return an empty message.
 
