@@ -18,7 +18,7 @@ func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error
 		if err != nil {
 			return err
 		}
-		go func(c net.Conn, params *gmqconf.Params, queues map[string]gmq.QueueInterface) {
+		go func(c net.Conn, params *gmqconf.Params, q map[string]gmq.QueueInterface) {
 			buf := make([]byte, params.Queue.MaxMessageL)
 			n, err := c.Read(buf)
 			if err != nil {
@@ -26,7 +26,7 @@ func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error
 				c.Close()
 			}
 			output <- buf[:n]
-			c.Write(handleMessage(params, <-output, queues))
+			c.Write(handleMessage(params, <-output, q))
 			c.Close()
 		}(conn, params, queues)
 	}
