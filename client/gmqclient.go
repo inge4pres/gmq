@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"flag"
 	"gmq/communication"
-	"io"
 	"log"
 	"net"
 	"os"
@@ -27,8 +26,9 @@ func main() {
 	logger = initLog()
 
 	out := configureOutput()
-	logger.Printf("Printing output to %s\n", out)
-	resp := callServer(configureCall())
+	logger.Printf("Printing output to %s\n", out.Name())
+	mex := configureCall()
+	resp := callServer(mex)
 	if _, err := out.Write(resp); err != nil {
 		logger.Printf("There was an error printing response from server to %s\n", out)
 		logger.Println("Response:\n%s", string(resp))
@@ -39,10 +39,10 @@ func main() {
 func initLog() *log.Logger {
 	file, err := os.OpenFile(logfile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {
-		return log.New(os.Stdout, "GMQ Client: ", log.LstdFlags)
+		return log.New(os.Stdout, "[GMQ Client] ", log.LstdFlags)
 
 	}
-	return log.New(file, "GMQ Client: ", log.LstdFlags)
+	return log.New(file, "[GMQ Client] ", log.LstdFlags)
 }
 
 func configureCall() *gmqnet.Message {
@@ -60,7 +60,7 @@ func configureCall() *gmqnet.Message {
 	}
 }
 
-func configureOutput() io.Writer {
+func configureOutput() *os.File {
 	if output == "" {
 		return os.Stdout
 	}
@@ -80,8 +80,9 @@ func callServer(mex *gmqnet.Message) []byte {
 	if _, err := conn.Write(gmqnet.WriteMessage(mex)); err != nil {
 		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err.Error())
 	}
-	if _, err := conn.Read(resp.Bytes()); err != nil {
+	n, err := conn.Read(resp.Bytes())
+	if err != nil {
 		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err.Error())
 	}
-	return resp.Bytes()
+	return resp.Bytes()[:n]
 }

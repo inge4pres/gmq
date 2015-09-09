@@ -18,6 +18,6 @@
   "path":"../fs/"
   },
  "log":{
-  "path":"../log/"	
+  "path":"../log/gmqserver.log"	
  }
 }
