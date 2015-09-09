@@ -29,14 +29,11 @@ func main() {
 		logger.Fatalf("Could not start TCP server!\n%T %s\n Check configuration json", err)
 	}
 
-	err = gmqnet.HandleConnection(server, config)
-	defer server.StopServer()
-
-	if err != nil {
-		logger.Fatalf("Error in GMQ server communication:\n%T\n%s\n", err, err)
-		return
+	if err = gmqnet.HandleConnection(server, config); err != nil {
+		logger.Fatalf("Error in GMQ server:\n%T\n%s\n", err, err)
 	}
-
+	server.StopServer()
+	return
 }
 
 func configureLogger(p *gmqconf.Params) (*log.Logger, error) {

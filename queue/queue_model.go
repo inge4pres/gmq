@@ -15,11 +15,7 @@ type QueueInterface interface {
 	sync()
 }
 
-func InitQueueInstance(dim int) {
+func InitQueueInstance(dim int) map[string]QueueInterface {
 	QueueInstance = make(map[string]QueueInterface, dim)
-}
-
-func GetQueue(name string) (*QueueInterface, bool) {
-	ret, ok := QueueInstance[name]
-	return &ret, ok
+	return QueueInstance
 }

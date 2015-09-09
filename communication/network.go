@@ -11,7 +11,7 @@ import (
 func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error) {
 	//Init singletons
 	output := make(chan []byte, params.Queue.MaxQueueN)
-	gmq.InitQueueInstance(params.Queue.MaxQueueN)
+	queues := gmq.InitQueueInstance(params.Queue.MaxQueueN)
 
 	for {
 		conn, err := server.Listener.Accept()
@@ -28,7 +28,7 @@ func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error
 			output <- buf[:n]
 			c.Write(handleMessage(params, <-output, queues))
 			c.Close()
-		}(conn, params, gmq.QueueInstance)
+		}(conn, params, queues)
 	}
 	return nil
 }
