@@ -61,21 +61,17 @@ func handleMessage(params *gmqconf.Params, message []byte, queues map[string]gmq
 			parsed.Error = err
 		}
 		parsed.Error = publish(parsed.Queue, queue, decoded)
-		break
 
 	case "S":
 		resp, err := subscribe(parsed.Queue, queue)
 		parsed.Payload = base64.StdEncoding.EncodeToString(resp)
 		parsed.Error = err
-		break
 
 	case "L":
 		parsed.Payload, parsed.Error = list(parsed.Queue, queue)
-		break
 
 	default:
 		parsed.Error = errors.New("Error: operation not yet implemented")
-		break
 	}
 
 	if parsed.Error != nil {
