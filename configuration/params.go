@@ -39,12 +39,20 @@ type LogConf struct {
 	Name string `json:"name"`
 }
 
+type ClusterConf struct {
+	Proto       string `json:"proto"`
+	Port        string `json:"cluster_port"`
+	TimeoutMsec int64  `json:"timeout_msec"`
+	Cidr        string `json:"cidr"`
+}
+
 type Params struct {
-	Network NetConf `json:"network"`
-	Queue   QConf   `json:"queue"`
-	Db      DbConf  `json:"database"`
-	Fs      FsConf  `json:"filesystem"`
-	Log     LogConf `json:"log"`
+	Network NetConf     `json:"network"`
+	Cluster ClusterConf `json:"cluster"`
+	Queue   QConf       `json:"queue"`
+	Db      DbConf      `json:"database"`
+	Fs      FsConf      `json:"filesystem"`
+	Log     LogConf     `json:"log"`
 }
 
 func ParseConfiguration(file string) (*Params, error) {

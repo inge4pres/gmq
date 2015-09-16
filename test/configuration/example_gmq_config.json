@@ -12,7 +12,7 @@
   },
  "database":{
   "vendor":"mysql",
-  "dsn":"gmq:qm3ssageM3@(localhost:3306)/gmq"
+  "dsn":"gmq:qm3ssageM3@(sviluppo.mtl.it:3306)/gmq"
   },
  "filesystem":{
   "path":"../fs/"
