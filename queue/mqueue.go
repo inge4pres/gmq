@@ -56,7 +56,7 @@ func (q Queue) sync() {
 	for i := 0; i < len(q.QObj); i++ {
 		q.QObj[i] = q.QObj[i+1]
 	}
-	q.QObj[len(q.QObj)] = nil
+	delete(q.QObj, len(q.QObj))
 }
 
 func (q PrioQueue) Push(prio int, o []byte) {
