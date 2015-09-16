@@ -59,6 +59,11 @@ func (q Queue) sync() {
 	delete(q.QObj, len(q.QObj)-1)
 }
 
+//Replace: receive a QObj replace the current queue
+func (q *Queue) Replace(obj map[int][]byte) {
+	q.QObj = obj
+}
+
 func (q PrioQueue) Push(prio int, o []byte) {
 	last := len(q.QObj[prio])
 	if last == 0 {

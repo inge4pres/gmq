@@ -3,8 +3,8 @@ package gmqnet
 import (
 	"errors"
 	"gmq/configuration"
+	"gmq/queue"
 	"net"
-	_ "strings"
 	"sync"
 	"time"
 )
@@ -22,6 +22,7 @@ func init() {
 }
 
 func ClusterPeerDiscovery(params *gmqconf.Params) error {
+
 	srvs := make(chan *gmqconf.Server, 255)
 
 	if params.Cluster.Port == "" {
@@ -37,18 +38,7 @@ func ClusterPeerDiscovery(params *gmqconf.Params) error {
 	if err != nil {
 		return errors.New("Wrong CIDR in Cluster configuration")
 	}
-	//	for i := 1; i < 255; i++ {
-	//		ip[3] = string(i)
-	//		go func() {
-	//			srvs <- dialServer(strings.Join(ip, "."), params.Cluster.Port, params.Cluster.Proto, params.Cluster.TimeoutMsec)
-	//		}()
-	//		select {
-	//		case server := <-srvs:
-	//			cluster[server.LocalInet] = server
-	//		default:
-	//			continue
-	//		}
-	//	}
+
 	var wg sync.WaitGroup
 	for ip := ip.Mask(ipNet.Mask); ipNet.Contains(ip); incIP(ip) {
 		wg.Add(1)
@@ -63,6 +53,7 @@ func ClusterPeerDiscovery(params *gmqconf.Params) error {
 			continue
 		}
 	}
+
 	checkLocalInet(params)
 	return nil
 }
@@ -100,20 +91,24 @@ func checkLocalInet(params *gmqconf.Params) {
 	return
 }
 
-func syncMessage(mex []byte) error {
-	errs := make(chan error)
-	for c := range cluster {
-		go func() {
-			conn, err := net.Dial(cluster[c].Proto, cluster[c].LocalInet+":"+cluster[c].Port)
-			if err != nil {
-				errs <- err
-			}
-			written, err := conn.Write(mex)
-			if written < len(mex) {
-				errs <- errors.New("Failed to write complete message synchronization in cluster")
-			}
-			errs <- err
-		}()
-	}
-	return <-errs
+func syncQueueWithPeers(queue *gmq.Queue) error {
+	return nil
 }
+
+//func syncMessage(mex []byte) error {
+//	errs := make(chan error)
+//	for c := range cluster {
+//		go func() {
+//			conn, err := net.Dial(cluster[c].Proto, cluster[c].LocalInet+":"+cluster[c].Port)
+//			if err != nil {
+//				errs <- err
+//			}
+//			written, err := conn.Write(mex)
+//			if written < len(mex) {
+//				errs <- errors.New("Failed to write complete message synchronization in cluster")
+//			}
+//			errs <- err
+//		}()
+//	}
+//	return <-errs
+//}

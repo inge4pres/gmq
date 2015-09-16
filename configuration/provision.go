@@ -1,6 +1,7 @@
 package gmqconf
 
 import (
+	"encoding/json"
 	"errors"
 	"gmq/queue"
 	"net"
@@ -13,6 +14,7 @@ const (
 )
 
 var server *Server
+var cluster map[string]*Server
 
 type Server struct {
 	Proto, LocalInet, Port string
@@ -21,6 +23,7 @@ type Server struct {
 
 func init() {
 	server = new(Server)
+	cluster = make(map[string]*Server)
 }
 
 func ConfigureQueue(conf *Params) (queue gmq.QueueInterface, err error) {
@@ -89,4 +92,8 @@ func InitServer(params *Params) (server *Server, err error) {
 
 func (server *Server) StopServer() {
 	server.Listener.Close()
+}
+
+func GetPeerList() ([]byte, error) {
+	return json.Marshal(cluster)
 }
