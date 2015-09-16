@@ -53,10 +53,10 @@ func (q Queue) Pop() ([]byte, error) {
 }
 
 func (q Queue) sync() {
-	for i := 0; i < len(q.QObj); i++ {
-		q.QObj[i] = q.QObj[i+1]
+	for i := 1; i <= len(q.QObj); i++ {
+		q.QObj[i-1] = q.QObj[i]
 	}
-	delete(q.QObj, len(q.QObj))
+	delete(q.QObj, len(q.QObj)-1)
 }
 
 func (q PrioQueue) Push(prio int, o []byte) {
