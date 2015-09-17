@@ -26,7 +26,6 @@ func main() {
 	logger = initLog()
 
 	out := configureOutput()
-	logger.Printf("Printing output to %s\n", out.Name())
 	mex := configureCall()
 	resp := callServer(mex)
 	if _, err := out.Write(resp); err != nil {
