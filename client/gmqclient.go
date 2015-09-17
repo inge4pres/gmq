@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"gmq/communication"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -14,7 +14,7 @@ var logger *log.Logger
 
 func main() {
 
-	flag.StringVar(&action, "a", "", "Action to be performed: P = Publish, S = Subscribe")
+	flag.StringVar(&action, "a", "", "Action to be performed: P = Publish, S = Subscribe, L = List")
 	flag.StringVar(&qname, "q", "", "Queue name")
 	flag.StringVar(&payload, "m", "", "Base64 encoded payload to use (only needed with \"-a P\")")
 	flag.StringVar(&protocol, "p", "tcp", "Protocol type: tcp4 or tcp6 (default to system settings)")
@@ -72,17 +72,17 @@ func configureOutput() *os.File {
 }
 
 func callServer(mex *gmqnet.Message) []byte {
-	var resp bytes.Buffer
 	conn, err := net.Dial(protocol, server)
+	defer conn.Close()
 	if err != nil {
-		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err.Error())
+		logger.Fatalf("Error connecting to the server:\n%T\n%s\n", err, err.Error())
 	}
 	if _, err := conn.Write(gmqnet.WriteMessage(mex)); err != nil {
-		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err.Error())
+		logger.Fatalf("Error posting the message to server:\n%T\n%s\n", err, err.Error())
 	}
-	n, err := conn.Read(resp.Bytes())
+	resp, err := ioutil.ReadAll(conn)
 	if err != nil {
-		logger.Fatalf("Error in call to server:\n%T\n%s\n", err, err.Error())
+		logger.Fatalf("Error reading response from server:\n%T\n%s\n", err, err.Error())
 	}
-	return resp.Bytes()[:n]
+	return resp
 }
