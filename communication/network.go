@@ -9,10 +9,16 @@ import (
 	"strconv"
 )
 
+// HandleConnection is a function configuring the server to accetp connections
+// Params: the pointer to the Server singleton instantiedted by the provisioner, the server configuration parameters
+// Returns: any error generated during the connection with clients
+//
+//Every client connection is handled in a goroutine: the incoming message will be parsed and the operation executed
 func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error) {
 	//Init singletons
 	output := make(chan []byte, params.Queue.MaxQueueN)
 	queues := gmq.InitQueueInstance(params.Queue.MaxQueueN)
+	errs := make(chan (error), 0)
 
 	for {
 		conn, err := server.Listener.Accept()
@@ -25,13 +31,14 @@ func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error
 			if err != nil {
 				c.Write([]byte("Error during the connection\n" + err.Error()))
 				c.Close()
+				errs <- err
 			}
 			output <- buf[:n]
 			c.Write(handleMessage(params, <-output, q))
 			c.Close()
 		}(conn, params, queues)
 	}
-	return nil
+	return <-errs
 }
 
 func handleMessage(params *gmqconf.Params, message []byte, queues map[string]gmq.QueueInterface) []byte {

@@ -59,7 +59,7 @@ func (q Queue) sync() {
 	delete(q.QObj, len(q.QObj)-1)
 }
 
-//Replace: receive a QObj replace the current queue
+//Replace: receive a QObj to replace the current queue
 func (q *Queue) Replace(obj map[int][]byte) {
 	q.QObj = obj
 }

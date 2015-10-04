@@ -26,6 +26,9 @@ func init() {
 	cluster = make(map[string]*Server)
 }
 
+// Configure the queue used in the server, handling mandatory configurations
+// Params: the pointer to the configuration Params
+// Returns: the QueueInterface type that will be used in server, an error if configuration fails
 func ConfigureQueue(conf *Params) (queue gmq.QueueInterface, err error) {
 
 	if conf.Queue.MaxQueueN < 1 {
@@ -81,6 +84,9 @@ func configureServer(conf *Params) *Server {
 	}
 }
 
+// Init the gmqserver singleton with configuration options
+// Params: the pointer to a configuration Params type
+// Returns: the pointer to the Server, an error if init fails
 func InitServer(params *Params) (server *Server, err error) {
 	server = configureServer(params)
 	server.Listener, err = net.Listen(server.Proto, server.LocalInet+":"+server.Port)
@@ -90,10 +96,12 @@ func InitServer(params *Params) (server *Server, err error) {
 	return server, nil
 }
 
+// Stops the running TCP server
 func (server *Server) StopServer() {
 	server.Listener.Close()
 }
 
+// Get the JSON byte array decribing the peers in cluster
 func GetPeerList() ([]byte, error) {
 	return json.Marshal(cluster)
 }

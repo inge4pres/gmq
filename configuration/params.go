@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 )
 
+// Constants representing the queue methodology
 const (
 	USE_MEMORY     = 1
 	USE_DATABASE   = 2
@@ -55,6 +56,9 @@ type Params struct {
 	Log     LogConf     `json:"log"`
 }
 
+// Parse a JSON configuration file
+// Params: the string representing the file path
+// Return: the pointer to the Param configuration type, an error if the parsing fails
 func ParseConfiguration(file string) (*Params, error) {
 	params := new(Params)
 	conf, err := ioutil.ReadFile(file)

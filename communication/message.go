@@ -5,8 +5,7 @@ import (
 )
 
 /*
-Message:
-A JSON file with attributes
+Message is the type describing the information exchange between gmqserver and gmqclient
 
 Operation: "P" (publish, post a message) or "S" (subscribe, retrieve a message)
 Queue: the queue name to be used
@@ -22,11 +21,17 @@ type Message struct {
 	Error     error  `json:"error"`
 }
 
+// Parses a JSON byte array trying to convert it to a Message
+// Params: the input byte array
+// Returns: the pointer to the Mesage type, an error if parsing fails
 func ParseMessage(in []byte) (*Message, error) {
 	m := new(Message)
 	return m, json.Unmarshal(in, m)
 }
 
+// Write a Message type into a byte array
+// Params: the pointer to the Message type
+// Returns: the JSON byte array
 func WriteMessage(m *Message) []byte {
 	resp, err := json.Marshal(m)
 	if err != nil {

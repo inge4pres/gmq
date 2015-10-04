@@ -12,6 +12,7 @@ const (
 
 var QueueInstance map[string]QueueInterface
 
+//QueueInterface: the interface type describing the operations a queue must have
 type QueueInterface interface {
 	GetLength() (int, error)
 	Create(string) (QueueInterface, error)
@@ -20,6 +21,7 @@ type QueueInterface interface {
 	sync()
 }
 
+//InitQueueInstance: init the singleton map used by the server
 func InitQueueInstance(dim int) map[string]QueueInterface {
 	QueueInstance = make(map[string]QueueInterface, dim)
 	return QueueInstance
