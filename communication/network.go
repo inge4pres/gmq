@@ -44,11 +44,23 @@ func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error
 func handleMessage(params *gmqconf.Params, message []byte, queues map[string]gmq.QueueInterface) []byte {
 	queue, err := gmqconf.ConfigureQueue(params)
 	if err != nil {
-		return []byte("Error parsing the server coniguration: " + err.Error())
+		mex := &Message{Error: errors.New("Error parsing the server coniguration: " + err.Error()),
+			Confirmed: "N",
+		}
+		return WriteMessage(mex)
 	}
 	parsed, err := ParseMessage(message)
 	if err != nil {
-		return []byte("Error parsing the incoming message: " + err.Error())
+		mex := &Message{Error: errors.New("Error parsing the incoming message: " + err.Error()),
+			Confirmed: "N",
+		}
+		return WriteMessage(mex)
+	}
+
+	if !verifyAuth(GenToken(params.Auth.User), GenToken(params.Auth.Password), parsed.Auth.UserTok, parsed.Auth.PwdTok) {
+		parsed.Error = errors.New("Authentication failed!")
+		parsed.Confirmed = "N"
+		return WriteMessage(parsed)
 	}
 
 	if _, exists := queues[parsed.Queue]; !exists {

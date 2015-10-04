@@ -13,6 +13,11 @@ const (
 	USE_FILESYSTEM = 3
 )
 
+type AuthConf struct {
+	User     string `json:"user"`
+	Password string `json:"password"`
+}
+
 type NetConf struct {
 	Port  string `json:"port"`
 	Inet  string `json:"interface"`
@@ -48,6 +53,7 @@ type ClusterConf struct {
 }
 
 type Params struct {
+	Auth    AuthConf    `json:"auth"`
 	Network NetConf     `json:"network"`
 	Cluster ClusterConf `json:"cluster"`
 	Queue   QConf       `json:"queue"`

@@ -9,11 +9,13 @@ import (
 	"os"
 )
 
-var action, qname, payload, protocol, server, logfile, output string
+var action, qname, payload, protocol, server, logfile, output, user, password string
 var logger *log.Logger
 
 func main() {
 
+	flag.StringVar(&user, "user", "", "Username to authenticate with GMQ")
+	flag.StringVar(&password, "password", "", "Password to authenticate to GMQ")
 	flag.StringVar(&action, "a", "", "Action to be performed: P = Publish, S = Subscribe, L = List")
 	flag.StringVar(&qname, "q", "", "Queue name")
 	flag.StringVar(&payload, "m", "", "Base64 encoded payload to use (only needed with \"-a P\")")
@@ -45,6 +47,12 @@ func initLog() *log.Logger {
 }
 
 func configureCall() *gmqnet.Message {
+	if user == "" {
+		logger.Fatalln("User cannot be null! Set -user")
+	}
+	if password == "" {
+		logger.Fatalln("Password cannot be null! Set -password")
+	}
 	if action == "" {
 		logger.Fatalln("Action cannot be null! Set -a")
 	}
@@ -53,6 +61,10 @@ func configureCall() *gmqnet.Message {
 	}
 
 	return &gmqnet.Message{
+		Auth: gmqnet.AuthToken{
+			UserTok: gmqnet.GenToken(user),
+			PwdTok:  gmqnet.GenToken(password),
+		},
 		Operation: action,
 		Queue:     qname,
 		Payload:   payload,
