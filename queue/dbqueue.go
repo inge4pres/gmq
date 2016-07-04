@@ -3,6 +3,7 @@ package gmq
 import (
 	"database/sql"
 	"encoding/base64"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 

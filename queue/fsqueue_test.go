@@ -93,7 +93,7 @@ func TestFsQueueConcurrentPop(t *testing.T) {
 					"returned: %d", len(message), len(ret))
 			}
 			if err != nil {
-				t.Errorf("Error %t %s", err, err)
+				t.Errorf("Error %T %s", err, err)
 			}
 		}()
 	}

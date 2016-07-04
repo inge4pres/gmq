@@ -3,8 +3,9 @@ package gmqconf
 import (
 	"encoding/json"
 	"errors"
-	"gmq/queue"
 	"net"
+
+	"github.com/inge4pres/gmq/queue"
 )
 
 const (

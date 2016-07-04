@@ -2,11 +2,12 @@ package gmqnet
 
 import (
 	"errors"
-	"gmq/configuration"
-	"gmq/queue"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/inge4pres/gmq/configuration"
+	"github.com/inge4pres/gmq/queue"
 )
 
 const (

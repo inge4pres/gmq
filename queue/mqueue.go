@@ -5,13 +5,13 @@ import (
 )
 
 type Queue struct {
-	lock  sync.RWMutex
+	lock  *sync.RWMutex
 	QName string
 	QObj  map[int][]byte
 }
 
 type PrioQueue struct {
-	lock  sync.RWMutex
+	lock  *sync.RWMutex
 	QName string
 	QObj  map[int]map[int][]byte
 }

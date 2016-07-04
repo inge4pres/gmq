@@ -2,11 +2,12 @@ package main
 
 import (
 	"flag"
-	"gmq/communication"
 	"io/ioutil"
 	"log"
 	"net"
 	"os"
+
+	"github.com/inge4pres/gmq/communication"
 )
 
 var action, qname, payload, protocol, server, logfile, output, user, password string

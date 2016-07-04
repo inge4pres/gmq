@@ -3,10 +3,11 @@ package gmqnet
 import (
 	"encoding/base64"
 	"errors"
-	"gmq/configuration"
-	"gmq/queue"
 	"net"
 	"strconv"
+
+	"github.com/inge4pres/gmq/configuration"
+	"github.com/inge4pres/gmq/queue"
 )
 
 // HandleConnection is a function configuring the server to accetp connections

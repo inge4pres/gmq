@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	"gmq/communication"
-	"gmq/configuration"
 	"log"
 	"os"
+
+	"github.com/inge4pres/gmq/communication"
+	"github.com/inge4pres/gmq/configuration"
 )
 
 var configfile string

@@ -9,13 +9,13 @@ import (
 )
 
 type FsQueue struct {
-	lock       sync.RWMutex
+	lock       *sync.RWMutex
 	Name, Path string
 	File       *os.File
 }
 
 type FsPrioQueue struct {
-	lock       sync.RWMutex
+	lock       *sync.RWMutex
 	Name, Path string
 	File       *os.File
 }

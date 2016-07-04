@@ -1,9 +1,10 @@
 package gmqnet
 
 import (
-	"gmq/configuration"
 	"testing"
 	"time"
+
+	"github.com/inge4pres/gmq/configuration"
 )
 
 var configfile = "../test/configuration/example_gmq_config.json"
