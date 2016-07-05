@@ -32,7 +32,7 @@ func main() {
 	mex := configureCall()
 	resp := callServer(mex)
 	if _, err := out.Write(resp); err != nil {
-		logger.Printf("There was an error printing response from server to %s\n", out)
+		logger.Printf("There was an error printing response from server to %s\n", out.Name())
 		logger.Println("Response:\n%s", string(resp))
 	}
 

@@ -25,6 +25,6 @@ func TestHandleConnection(t *testing.T) {
 
 	go HandleConnection(server, config)
 
-	time.Sleep(time.Second * 60)
+	time.Sleep(time.Second * 10)
 	server.StopServer()
 }

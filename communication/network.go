@@ -21,24 +21,23 @@ func HandleConnection(server *gmqconf.Server, params *gmqconf.Params) (err error
 	queues := gmq.InitQueueInstance(params.Queue.MaxQueueN)
 	errs := make(chan (error), 0)
 
-	for {
-		conn, err := server.Listener.Accept()
-		if err != nil {
-			return err
-		}
-		go func(c net.Conn, params *gmqconf.Params, q map[string]gmq.QueueInterface) {
-			buf := make([]byte, params.Queue.MaxMessageL)
-			n, err := c.Read(buf)
-			if err != nil {
-				c.Write([]byte("Error during the connection\n" + err.Error()))
-				c.Close()
-				errs <- err
-			}
-			output <- buf[:n]
-			c.Write(handleMessage(params, <-output, q))
-			c.Close()
-		}(conn, params, queues)
+	conn, err := server.Listener.Accept()
+	if err != nil {
+		return err
 	}
+	go func(c net.Conn, params *gmqconf.Params, q map[string]gmq.QueueInterface) {
+		buf := make([]byte, params.Queue.MaxMessageL)
+		n, err := c.Read(buf)
+		if err != nil {
+			c.Write([]byte("Error during the connection\n" + err.Error()))
+			c.Close()
+			errs <- err
+		}
+		output <- buf[:n]
+		c.Write(handleMessage(params, <-output, q))
+		c.Close()
+	}(conn, params, queues)
+
 	return <-errs
 }
 

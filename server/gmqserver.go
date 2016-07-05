@@ -27,13 +27,14 @@ func main() {
 
 	server, err := gmqconf.InitServer(config)
 	if err != nil {
-		logger.Fatalf("Could not start TCP server!\n%T %s\n Check configuration json", err)
+		logger.Fatalf("Could not start TCP server!\n%T %s\n Check configuration json", err, err.Error())
 	}
-
-	if err = gmqnet.HandleConnection(server, config); err != nil {
-		logger.Fatalf("Error in GMQ server:\n%T\n%s\n", err, err)
-	}
-	server.StopServer()
+	go func() {
+		err := gmqnet.HandleConnection(server, config)
+		if err != nil {
+			logger.Printf("Error in GMQ server:\n%T\n%s\n", err, err)
+		}
+	}()
 	return
 }
 
