@@ -1,10 +1,11 @@
 package gmq
 
 import (
+	"sync"
 	"testing"
 )
 
-var dsn = "gmq:qm3ssageM3@(sviluppo.mtl.it:3306)/gmq"
+var dsn = "gmq:qm3ssageM3@(docker:3306)/gmq"
 var vendor = "mysql"
 var dbqueue = &DbQueue{Name: "queue",
 	Vendor: vendor,
@@ -40,7 +41,7 @@ func TestDbQueuePop(t *testing.T) {
 }
 
 func TestDbQueueSequentialPush(t *testing.T) {
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 11; i++ {
 		if err := dbqueue.Push(message); err != nil {
 			t.Errorf("Error %T %s", err, err.Error())
 		}
@@ -62,17 +63,23 @@ func TestDbQueueSequentialPop(t *testing.T) {
 }
 
 func TestDbQueueConcurrentPush(t *testing.T) {
+	wg := &sync.WaitGroup{}
 	for i := 0; i < 10; i++ {
+		wg.Add(1)
 		go func() {
 			if err := dbqueue.Push(message); err != nil {
 				t.Errorf("Error %T %s", err, err.Error())
 			}
+			wg.Done()
 		}()
 	}
+	wg.Wait()
 }
 
 func TestDbQueueConcurrentPop(t *testing.T) {
+	wg := &sync.WaitGroup{}
 	for i := 0; i < 10; i++ {
+		wg.Add(1)
 		go func() {
 			ret, err := dbqueue.Pop()
 			if err != nil {
@@ -83,6 +90,8 @@ func TestDbQueueConcurrentPop(t *testing.T) {
 					"message: %d \n"+
 					"returned: %d", len(message), len(ret))
 			}
+			wg.Done()
 		}()
 	}
+	wg.Wait()
 }

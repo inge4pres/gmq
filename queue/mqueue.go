@@ -31,7 +31,10 @@ func (q Queue) GetLength() (int, error) {
 }
 
 func (q Queue) Create(name string) (QueueInterface, error) {
-	mq := Queue{QName: name}
+	mq := Queue{
+		QName: name,
+		lock:  &sync.RWMutex{},
+	}
 	return mq, nil
 }
 
@@ -61,7 +64,9 @@ func (q Queue) sync() {
 
 //Replace: receive a QObj to replace the current queue
 func (q *Queue) Replace(obj map[int][]byte) {
+	q.lock.Lock()
 	q.QObj = obj
+	q.lock.Unlock()
 }
 
 func (q PrioQueue) Push(prio int, o []byte) {

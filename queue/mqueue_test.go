@@ -1,9 +1,15 @@
 package gmq
 
-import "testing"
+import (
+	"sync"
+	"testing"
+)
 
 var message = []byte("TEST Message: you know, for testing...")
-var queue = &Queue{QName: "test_queue"}
+var queue = &Queue{
+	QName: "test_queue",
+	lock:  &sync.RWMutex{},
+}
 
 func TestQueueSimplePush(t *testing.T) {
 	queue.Init(DEFAULT_QUEUE_CAP)

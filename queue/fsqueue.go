@@ -37,7 +37,10 @@ func (fs FsQueue) GetLength() (int, error) {
 }
 
 func (fs FsQueue) Create(name string) (QueueInterface, error) {
-	fsq := FsQueue{Name: name}
+	fsq := FsQueue{
+		Name: name,
+		lock: &sync.RWMutex{},
+	}
 	return fsq, getQueueFile(&fsq)
 }
 

@@ -1,6 +1,7 @@
 package gmq
 
 import (
+	"sync"
 	"testing"
 )
 
@@ -8,6 +9,7 @@ func TestFsQueueFirstPush(t *testing.T) {
 	q := &FsQueue{
 		Name: "queue_test_1",
 		Path: "../test/fs/",
+		lock: &sync.RWMutex{},
 	}
 	err := q.Push(message)
 	if err != nil {
@@ -19,6 +21,7 @@ func TestFsQueueSequentialPush(t *testing.T) {
 	q := &FsQueue{
 		Name: "queue_test_2",
 		Path: "../test/fs/",
+		lock: &sync.RWMutex{},
 	}
 	for i := 0; i < 10; i++ {
 		err := q.Push(message)
@@ -33,6 +36,7 @@ func TestFsQueueConcurrentPush(t *testing.T) {
 	q := &FsQueue{
 		Name: "queue_test_3",
 		Path: "../test/fs/",
+		lock: &sync.RWMutex{},
 	}
 	for i := 0; i < 10; i++ {
 		go func() {
@@ -48,6 +52,7 @@ func TestFsQueueFirstPop(t *testing.T) {
 	q := &FsQueue{
 		Name: "queue_test_2",
 		Path: "../test/fs/",
+		lock: &sync.RWMutex{},
 	}
 	ret, err := q.Pop()
 	// '\n' is an additive byte only used in Push()
@@ -65,6 +70,7 @@ func TestFsQueueSequentialPop(t *testing.T) {
 	q := &FsQueue{
 		Name: "queue_test_2",
 		Path: "../test/fs/",
+		lock: &sync.RWMutex{},
 	}
 	for i := 0; i < 4; i++ {
 		ret, err := q.Pop()
@@ -83,6 +89,7 @@ func TestFsQueueConcurrentPop(t *testing.T) {
 	q := &FsQueue{
 		Name: "queue_test_2",
 		Path: "../test/fs/",
+		lock: &sync.RWMutex{},
 	}
 	for i := 0; i < 5; i++ {
 		go func() {

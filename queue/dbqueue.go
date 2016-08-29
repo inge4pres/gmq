@@ -61,7 +61,7 @@ func (db DbQueue) Pop() ([]byte, error) {
 	defer db.conn.Close()
 	var decode string
 	var id int64
-	if err := db.conn.QueryRow("SELECT MIN(id) FROM " + db.Name).Scan(&id); err != nil {
+	if err := db.conn.QueryRow("SELECT MIN(id) FROM " + db.Name + " WHERE processed = 0").Scan(&id); err != nil {
 		return nil, err
 	}
 	if id > 0 {
