@@ -63,8 +63,8 @@ func configureCall() *gmqnet.Message {
 
 	return &gmqnet.Message{
 		Auth: gmqnet.AuthToken{
-			UserTok: gmqnet.GenToken(user),
-			PwdTok:  gmqnet.GenToken(password),
+			UserTok: gmqnet.GenSha512Token(user),
+			PwdTok:  gmqnet.GenSha512Token(password),
 		},
 		Operation: action,
 		Queue:     qname,
