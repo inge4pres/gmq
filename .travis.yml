@@ -1,0 +1,10 @@
+language: go
+
+services:
+  - mysql
+
+before_script:
+  - sleep 15
+  - mysql -u root -p"" < sql/initdb.sql
+  - mysql -u root -p"" < sql/queue.sql
+
