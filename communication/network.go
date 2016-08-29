@@ -3,6 +3,7 @@ package gmqnet
 import (
 	"encoding/base64"
 	"errors"
+	"log"
 	"net"
 	"strconv"
 
@@ -57,7 +58,7 @@ func handleMessage(params *gmqconf.Params, message []byte, queues map[string]gmq
 		return WriteMessage(mex)
 	}
 
-	if !verifyAuth(GenToken(params.Auth.User), GenToken(params.Auth.Password), parsed.Auth.UserTok, parsed.Auth.PwdTok) {
+	if !verifyAuth(GenSha512Token(params.Auth.User), GenSha512Token(params.Auth.Password), parsed.Auth.UserTok, parsed.Auth.PwdTok) {
 		parsed.Error = errors.New("Authentication failed!")
 		parsed.Confirmed = "N"
 		return WriteMessage(parsed)
@@ -89,6 +90,12 @@ func handleMessage(params *gmqconf.Params, message []byte, queues map[string]gmq
 	case "L":
 		parsed.Payload, parsed.Error = list(parsed.Queue, queue)
 
+	case "SYNC":
+		//TODO Get the queue in memory/fs and verify that is the same received
+		if err := qsync(parsed.Queue, parsed.Payload, queue); err != nil {
+			log.Printf("SYNC error: %v\n", err)
+		}
+
 	default:
 		parsed.Error = errors.New("Error: operation not yet implemented")
 	}
@@ -113,4 +120,9 @@ func subscribe(qname string, q gmq.QueueInterface) ([]byte, error) {
 func list(qname string, q gmq.QueueInterface) (string, error) {
 	lenght, err := gmq.GetQueueLength(qname)
 	return strconv.Itoa(lenght), err
+}
+
+func qsync(qname, qpayloads string, q gmq.QueueInterface) error {
+	//TODO
+	return nil
 }

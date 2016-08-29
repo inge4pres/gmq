@@ -1,13 +1,15 @@
 package gmqnet
 
 import (
+	_ "bytes"
+	_ "encoding/gob"
 	"errors"
 	"net"
 	"sync"
 	"time"
 
 	"github.com/inge4pres/gmq/configuration"
-	"github.com/inge4pres/gmq/queue"
+	_ "github.com/inge4pres/gmq/queue"
 )
 
 const (
@@ -92,9 +94,23 @@ func checkLocalInet(params *gmqconf.Params) {
 	return
 }
 
-func syncQueueWithPeers(queue *gmq.Queue) error {
-	return nil
-}
+//func syncQueueWithPeers(queue *gmq.Queue) error {
+//	//FIXME
+//	for _, _ = range cluster {
+//		byteBuf := make([]byte, 512)
+//		buf := bytes.NewBuffer(byteBuf)
+//		encode := gob.NewEncoder(buf)
+//		encode.Encode(&queue.QObj)
+//		go func(input []byte) {
+//			mex := &Message{
+//				Operation: "SYNC",
+//				Payload:   string(input),
+//			}
+//			//TODO ...
+//		}(buf.Bytes())
+//	}
+//	return nil
+//}
 
 //func syncMessage(mex []byte) error {
 //	errs := make(chan error)
