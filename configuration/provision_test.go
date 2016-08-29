@@ -17,7 +17,7 @@ func TestInitServer(t *testing.T) {
 	netaddr := server.Listener.Addr()
 	fmt.Printf("Listner Network: %s", netaddr)
 	if netaddr.Network() == "" {
-		t.Error("Netowrk Listener not intiated")
+		t.Error("Netowrk Listener not initiated")
 		return
 	}
 
