@@ -3,8 +3,11 @@ language: go
 services:
   - mysql
 
+addons:
+  hosts:
+    - docker
+
 before_script:
-  - echo "127.0.0.1	docker" >> /etc/hosts
   - sleep 15
   - mysql -u root < sql/initdb.sql
   - mysql -u root < sql/queue.sql
