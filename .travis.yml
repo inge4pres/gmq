@@ -5,6 +5,8 @@ services:
 
 before_script:
   - sleep 15
-  - mysql -u root -p"" < sql/initdb.sql
-  - mysql -u root -p"" < sql/queue.sql
+  - mysql -u root < sql/initdb.sql
+  - mysql -u root < sql/queue.sql
 
+install:
+  - go get github.com/go-sql-driver/mysql 
