@@ -8,7 +8,8 @@ addons:
     - docker
 
 before_script:
-  - sleep 15
+  - mkdir -p ./${TRAVIS_BUILD_DIR}/test/fs
+  - sleep 5
   - mysql -u root < sql/initdb.sql
   - mysql -u root < sql/queue.sql
 
