@@ -5,7 +5,7 @@
  },
  "network":{
   "port":"48844",
-  "interface":"",
+  "interface":"0.0.0.0",
   "protocol":"tcp4"
  },
  "queue":{
