@@ -14,6 +14,9 @@ func TestInitServer(t *testing.T) {
 		return
 	}
 	server, err := InitServer(config)
+	if err != nil {
+		t.Errorf("InitServer() Error: %v\n", err)
+	}
 	netaddr := server.Listener.Addr()
 	fmt.Printf("Listner Network: %s", netaddr)
 	if netaddr.Network() == "" {
