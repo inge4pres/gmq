@@ -4,7 +4,7 @@
   "password":"thisismyverysecureTCPserverpassword"
  },
  "network":{
-  "port":"4884",
+  "port":"48844",
   "interface":"",
   "protocol":"tcp4"
  },
@@ -16,7 +16,7 @@
   },
  "database":{
   "vendor":"mysql",
-  "dsn":"gmq:qm3ssageM3@(localhost:3306)/gmq"
+  "dsn":"gmq:qm3ssageM3@(docker:3306)/gmq"
   },
  "filesystem":{
   "path":"../fs/"
